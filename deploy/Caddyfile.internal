@@ -1,0 +1,38 @@
+# Internal router behind the host Caddy (which terminates TLS). Plain HTTP only.
+{
+	auto_https off
+	admin off
+}
+
+:80 {
+	encode zstd gzip
+
+	# Previews: arrow.preview.aestrodom.org -> container alias preview-arrow
+	@preview host *.{$PRISMATIC_PREVIEW_DOMAIN}
+	handle @preview {
+		header X-Robots-Tag "noindex, nofollow"
+		reverse_proxy preview-{labels.{$PREVIEW_SLUG_LABEL}}:3000 {
+			fail_duration 5s
+		}
+	}
+
+	# Main application
+	@main host {$PRISMATIC_DOMAIN} www.{$PRISMATIC_DOMAIN}
+	handle @main {
+		reverse_proxy app:3000 {
+			flush_interval -1
+		}
+	}
+
+	# Deployed projects: arrow.aestrodom.org -> container alias site-arrow
+	@site host *.{$PRISMATIC_DOMAIN}
+	handle @site {
+		reverse_proxy site-{labels.{$SITE_SLUG_LABEL}}:3000 {
+			fail_duration 5s
+		}
+	}
+
+	handle_errors {
+		respond "Not found" 404
+	}
+}

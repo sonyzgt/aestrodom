@@ -1,0 +1,119 @@
+<!doctype html>
+<!-- Source for marketing/aestrodom-43-apps*.png (X post image, 1600×900). Add ?light for the white version. -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>aestrodom — 43 apps in one day</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root { --bg: #050505; --fg: #ffffff; --muted: #a1a1aa; --subtle: #52525b; --line: #1c1c20; --card: #0c0c0e; --bar: #27272a; --bar2: #3f3f46; --f1: #3f3f46; --f2: #ffffff; --f3: #a1a1aa; --glow: rgba(255,255,255,.10); }
+  .light { --bg: #ffffff; --fg: #000000; --muted: #4b5563; --subtle: #9ca3af; --line: #e5e7eb; --card: #f9fafb; --bar: #e5e7eb; --bar2: #d1d5db; --f1: #9ca3af; --f2: #000000; --f3: #4b5563; --glow: rgba(0,0,0,.06); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; overflow: hidden; }
+  body { position: relative; background: var(--bg); color: var(--fg); font-family: "Plus Jakarta Sans", sans-serif; -webkit-font-smoothing: antialiased; }
+
+  .grid { position: absolute; inset: 0;
+    background-image: linear-gradient(to right, var(--line) 1px, transparent 1px), linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 56px 56px; background-position: -1px -1px;
+    -webkit-mask: radial-gradient(ellipse 70% 80% at 25% 50%, #000 20%, transparent 75%); mask: radial-gradient(ellipse 70% 80% at 25% 50%, #000 20%, transparent 75%); }
+  .glow { position: absolute; left: -80px; top: 50%; width: 900px; height: 900px; transform: translateY(-50%); border-radius: 50%;
+    background: radial-gradient(circle, var(--glow) 0%, transparent 62%); }
+
+  header { position: absolute; left: 96px; right: 96px; top: 72px; display: flex; justify-content: space-between; align-items: center; }
+  .brand { display: flex; align-items: center; gap: 16px; font-family: Orbitron, sans-serif; font-weight: 900; font-size: 28px; letter-spacing: .16em; }
+  .brand svg { width: 40px; height: 40px; }
+  .live { display: flex; align-items: center; gap: 12px; padding: 12px 22px; border: 1px solid var(--subtle); border-radius: 999px;
+    font-size: 15px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; }
+  .live i { width: 9px; height: 9px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 5px rgba(34,197,94,.18); }
+
+  .content { position: absolute; left: 96px; top: 190px; width: 640px; }
+  .eyebrow { display: flex; align-items: center; gap: 14px; font-size: 16px; font-weight: 600; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); }
+  .eyebrow::before { content: ""; width: 40px; height: 1px; background: var(--fg); }
+  .num { margin-top: 18px; font-family: Orbitron, sans-serif; font-weight: 900; font-size: 260px; line-height: .9; letter-spacing: -.02em; }
+  h1 { margin-top: 18px; font-family: Orbitron, sans-serif; font-weight: 800; font-size: 54px; line-height: 1.12; letter-spacing: .04em; text-transform: uppercase; }
+  h1 em { font-style: normal; color: var(--subtle); }
+  .sub { margin-top: 24px; font-size: 22px; line-height: 1.5; color: var(--muted); max-width: 560px; }
+
+  .apps { position: absolute; right: 96px; top: 176px; display: grid; grid-template-columns: repeat(7, 92px); gap: 10px; }
+  .app { position: relative; height: 70px; border: 1px solid var(--bar); border-radius: 8px; background: var(--card); overflow: hidden; }
+  .app .top { height: 12px; display: flex; gap: 3px; align-items: center; padding: 0 6px; border-bottom: 1px solid var(--bar); }
+  .app .top i { width: 4px; height: 4px; border-radius: 50%; background: var(--bar2); }
+  .app .b { position: absolute; border-radius: 2px; background: var(--bar2); }
+  .app .n { position: absolute; right: 6px; top: 1px; line-height: 10px; font-family: "JetBrains Mono", monospace; font-size: 8px; color: var(--subtle); }
+  .app.hot { border-color: var(--fg); box-shadow: 0 0 0 4px var(--glow), 0 0 40px var(--glow); }
+  .app.hot .b { background: var(--fg); }
+  .app.hot .n { color: var(--fg); font-weight: 500; }
+  .app.next { border: 1px dashed var(--subtle); background: transparent; display: grid; place-items: center; font-size: 22px; color: var(--subtle); }
+  .app.next.first { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+  .legend { position: absolute; right: 96px; top: 746px; width: 704px; display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+
+  .foot { position: absolute; left: 96px; right: 96px; bottom: 64px; display: flex; justify-content: space-between; align-items: center; padding-top: 22px; border-top: 1px solid var(--line); font-size: 17px; color: var(--muted); }
+  .foot b { color: var(--fg); font-weight: 700; letter-spacing: .08em; }
+  .tags { display: flex; gap: 26px; }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="glow"></div>
+
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 64 64"><g stroke-linejoin="round" stroke-width="2.5">
+        <path d="M32 5 L33 39 L4 57 Z" fill="var(--f1)" stroke="var(--f1)" />
+        <path d="M32 5 L60 57 L33 39 Z" fill="var(--f2)" stroke="var(--f2)" />
+        <path d="M4 57 L33 39 L60 57 Z" fill="var(--f3)" stroke="var(--f3)" />
+      </g></svg>
+      AESTRODOM
+    </div>
+    <div class="live"><i></i>Milestone</div>
+  </header>
+
+  <div class="content">
+    <div class="eyebrow">Built in one day</div>
+    <div class="num">43</div>
+    <h1>Apps shipped.<br /><em>One day.</em></h1>
+    <div class="sub">Each one described in plain words, built by Claude and live on its own domain.</div>
+  </div>
+
+  <div class="apps" id="apps"></div>
+  <div class="legend"><span>43 live apps</span><span>Yours is next</span></div>
+
+  <div class="foot">
+    <div class="tags"><span>Describe</span><span>Build</span><span>Deploy</span><span>Launch</span></div>
+    <b>AESTRODOM.ORG</b>
+  </div>
+
+  <script>
+    const q = new URLSearchParams(location.search);
+    if (q.has("light")) document.documentElement.classList.add("light");
+
+    // 43 mini app thumbnails (deterministic layouts), then empty slots for the next ones.
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+    const layouts = [
+      (r) => [[8, 20, 40, 6], [8, 30, 60, 4], [8, 38, 50, 4], [8, 50, 22, 8]],                          // landing
+      (r) => [[6, 18, 16, 46], [26, 20, 26, 14], [56, 20, 28, 14], [26, 40, 58, 22]],                   // dashboard
+      (r) => [[8, 20, 22, 18], [34, 20, 22, 18], [60, 20, 22, 18], [8, 44, 22, 18], [34, 44, 22, 18], [60, 44, 22, 18]], // gallery
+      (r) => [[20, 20, 50, 6], [28, 30, 34, 4], [14, 42, 62, 18]],                                      // centered
+      (r) => [[8, 20, 76, 22], [8, 48, 34, 4], [8, 56, 50, 4]],                                         // hero image
+      (r) => [[8, 20, 36, 40], [50, 22, 30, 5], [50, 32, 24, 4], [50, 40, 28, 4], [50, 52, 16, 6]],     // split
+    ];
+    const el = document.getElementById("apps");
+    for (let i = 1; i <= 49; i++) {
+      const d = document.createElement("div");
+      if (i <= 43) {
+        d.className = "app" + (i === 43 ? " hot" : "");
+        const bars = layouts[Math.floor(rnd() * layouts.length)]();
+        d.innerHTML = '<div class="top"><i></i><i></i><i></i></div>' +
+          bars.map(([x, y, w, h]) => `<div class="b" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;opacity:${(0.55 + rnd() * 0.45).toFixed(2)}"></div>`).join("") +
+          `<span class="n">#${String(i).padStart(2, "0")}</span>`;
+      } else {
+        d.className = "app next" + (i === 44 ? " first" : "");
+        d.textContent = i === 44 ? "Yours" : "+";
+      }
+      el.appendChild(d);
+    }
+  </script>
+</body>
+</html>

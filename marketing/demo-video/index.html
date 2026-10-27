@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Aestrodom Demo Video</title>
+<style>
+  @font-face { font-family: "Archivo"; src: url("./archivo.woff2") format("woff2"); font-weight: 100 900; }
+  @font-face { font-family: "Geist"; src: url("./Geist-Variable.woff2") format("woff2"); font-weight: 100 900; }
+  @font-face { font-family: "Geist Mono"; src: url("./GeistMono-Variable.woff2") format("woff2"); font-weight: 100 900; }
+  :root {
+    --ink: #0b0b0b; --blue: #0479f2; --elev: #0b6cdb; --inset: #0562c9;
+    --cream: #fbf2e6; --muted: #d9e8fc; --subtle: #a9cdf8; --ok: #a8ffc4; --warn: #ffe066;
+    --display: "Archivo", "Arial Black", sans-serif; --sans: "Geist", system-ui, sans-serif; --mono: "Geist Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--blue); }
+  body { font-family: var(--sans); color: var(--cream); -webkit-font-smoothing: antialiased; }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden;
+    background-color: var(--blue); background-image: radial-gradient(rgba(11,11,11,.22) 1.6px, transparent 2.2px); background-size: 16px 16px; }
+  .h { visibility: hidden; opacity: 0; }
+  .mono { font-family: var(--mono); }
+  svg.i { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .spin { display: inline-block; }
+
+  /* ---------- Browser window ---------- */
+  #win { position: absolute; left: 72px; top: 36px; width: 1776px; height: 866px; border: 5px solid var(--ink); background: var(--blue); box-shadow: 16px 16px 0 var(--ink); }
+  .chrome { height: 50px; background: var(--cream); border-bottom: 5px solid var(--ink); display: flex; align-items: center; gap: 22px; padding: 0 18px; color: var(--ink); }
+  .lights { display: flex; gap: 10px; } .lights i { width: 16px; height: 16px; border: 3px solid var(--ink); background: #fff; display: block; }
+  .lights i:first-child { background: var(--blue); }
+  .url { flex: 1; max-width: 760px; height: 32px; border: 3px solid var(--ink); background: #fff; display: flex; align-items: center; gap: 10px; padding: 0 12px; font-family: var(--mono); font-size: 17px; font-weight: 600; }
+  .url svg { color: #137a3f; }
+  #vp { position: absolute; left: 0; top: 55px; right: 0; bottom: 0; overflow: hidden;
+    background-color: var(--blue); background-image: radial-gradient(rgba(11,11,11,.17) 1px, transparent 1.5px); background-size: 8px 8px; }
+  .scene { position: absolute; inset: 0; visibility: hidden; opacity: 0; }
+
+  /* ---------- shared UI ---------- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 48px; padding: 0 22px; border: 3px solid var(--ink); font-weight: 700; font-size: 19px; box-shadow: 4px 4px 0 var(--ink); white-space: nowrap; }
+  .btn-accent { background: var(--cream); color: var(--ink); }
+  .btn-sec { background: var(--elev); color: var(--cream); }
+  .btn-sm { height: 40px; font-size: 16px; padding: 0 14px; box-shadow: 3px 3px 0 var(--ink); }
+  .field label { display: block; font-size: 15px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+  .field .hint { float: right; font-size: 13px; color: var(--subtle); font-weight: 400; }
+  .inp { height: 44px; border: 2px solid var(--ink); background: var(--inset); padding: 0 12px; display: flex; align-items: center; font-size: 17px; color: var(--cream); overflow: hidden; white-space: nowrap; }
+  .caret { display: inline-block; width: 2px; height: 1.1em; background: var(--cream); vertical-align: -0.15em; margin-left: 1px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 2px solid var(--ink); }
+  .overlay { position: absolute; inset: 0; background: rgba(2,24,64,.62); visibility: hidden; opacity: 0; }
+  .dialog { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); background: var(--blue); border: 4px solid var(--ink); box-shadow: 10px 10px 0 var(--ink); padding: 28px 30px; visibility: hidden; opacity: 0;
+    background-image: radial-gradient(rgba(11,11,11,.14) 1px, transparent 1.5px); background-size: 8px 8px; }
+  .dialog h3 { font-family: var(--display); font-weight: 800; font-size: 30px; letter-spacing: -0.01em; }
+  .dialog .desc { color: var(--muted); font-size: 17px; margin-top: 4px; }
+
+  /* ---------- Landing ---------- */
+  .site-head { height: 76px; display: flex; align-items: center; padding: 0 44px; gap: 40px; border-bottom: 3px solid var(--ink); }
+  .logo { display: flex; align-items: center; gap: 12px; font-family: var(--display); font-weight: 800; font-size: 30px; }
+  .logo .m { width: 38px; height: 38px; border: 3px solid var(--ink); background: url("./logo-sm.png") center/cover; }
+  .nav { display: flex; gap: 32px; font-size: 18px; color: var(--muted); }
+  .hero { padding: 90px 44px 0; }
+  .eyebrow { font-family: var(--mono); font-size: 18px; color: var(--muted); border: 2px solid var(--ink); display: inline-block; padding: 6px 12px; background: var(--elev); }
+  .h1 { font-family: var(--display); font-weight: 900; text-transform: uppercase; font-size: 104px; line-height: .98; letter-spacing: -0.02em; margin-top: 30px;
+    text-shadow: 1px 1px 0 var(--ink), 2px 2px 0 var(--ink), 3px 3px 0 var(--ink), 4px 4px 0 var(--ink), 5px 5px 0 var(--ink), 6px 6px 0 var(--ink); }
+  .h1 .b { color: var(--ink); text-shadow: none; display: block; }
+  .lead { font-size: 23px; color: var(--muted); max-width: 760px; margin-top: 30px; line-height: 1.5; }
+  .hero-cta { display: flex; gap: 18px; margin-top: 38px; align-items: center; }
+  .hero-cta .btn { height: 60px; font-size: 22px; padding: 0 28px; }
+
+  /* ---------- Login + Privy ---------- */
+  .auth-card { position: absolute; left: 50%; top: 46%; transform: translate(-50%,-50%); width: 520px; border: 4px solid var(--ink); background: var(--elev); box-shadow: 10px 10px 0 var(--ink); padding: 40px; text-align: center; }
+  .auth-card h2 { font-family: var(--display); font-weight: 900; font-size: 40px; text-transform: uppercase; }
+  .auth-card p { color: var(--muted); font-size: 17px; margin: 10px 0 28px; }
+  .auth-card .btn { width: 100%; height: 56px; }
+  .auth-card small { display: block; margin-top: 18px; color: var(--subtle); font-size: 14px; }
+  .privy { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 440px; background: #fff; color: #111; border-radius: 18px; padding: 30px; box-shadow: 0 30px 80px rgba(0,0,0,.35); visibility: hidden; opacity: 0; font-family: var(--sans); }
+  .privy .t { text-align: center; font-weight: 700; font-size: 20px; margin-bottom: 22px; }
+  .privy .pinp { height: 54px; border: 1.5px solid #d4d4d8; border-radius: 12px; display: flex; align-items: center; padding: 0 16px; gap: 10px; font-size: 17px; color: #111; }
+  .privy .pinp .sub { margin-left: auto; background: #111; color: #fff; font-size: 15px; font-weight: 600; padding: 8px 14px; border-radius: 9px; }
+  .privy .alt { margin-top: 12px; display: grid; gap: 10px; }
+  .privy .alt div { height: 50px; border: 1.5px solid #e4e4e7; border-radius: 12px; display: flex; align-items: center; padding: 0 16px; font-size: 16px; color: #333; gap: 12px; }
+  .privy .alt b { width: 22px; height: 22px; border-radius: 6px; background: #e4e4e7; display: inline-block; }
+  .privy .code { display: flex; gap: 10px; justify-content: center; margin: 6px 0 8px; }
+  .privy .code span { width: 50px; height: 60px; border: 1.5px solid #d4d4d8; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 600; }
+  .privy .foot { text-align: center; font-size: 13px; color: #888; margin-top: 18px; }
+
+  /* ---------- Dashboard / new project ---------- */
+  .side { position: absolute; left: 0; top: 0; bottom: 0; width: 280px; border-right: 3px solid var(--ink); padding: 22px 18px; background: rgba(5,98,201,.4); }
+  .side .logo { font-size: 26px; margin: 0 8px 28px; }
+  .side a { display: flex; align-items: center; gap: 14px; padding: 12px 14px; font-size: 18px; color: var(--muted); }
+  .side a.on { background: var(--cream); color: var(--ink); font-weight: 700; border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+  .main { position: absolute; left: 280px; top: 0; right: 0; bottom: 0; padding: 60px 100px; }
+  .main h2 { font-family: var(--display); font-weight: 900; text-transform: uppercase; font-size: 56px;
+    text-shadow: 1px 1px 0 var(--ink), 2px 2px 0 var(--ink), 3px 3px 0 var(--ink), 4px 4px 0 var(--ink); }
+  .main .sub { color: var(--muted); font-size: 20px; margin: 10px 0 34px; }
+  .composer { border: 3px solid var(--ink); background: var(--elev); padding: 12px; box-shadow: 6px 6px 0 var(--ink); }
+  .composer .ta { min-height: 196px; font-size: 23px; line-height: 1.5; padding: 10px 12px; color: var(--cream); }
+  .composer .ta .ph { color: var(--subtle); }
+  .composer .row { display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; }
+  .composer .row .inp { width: 320px; height: 44px; font-size: 17px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+  .chips span { border: 2px solid var(--ink); padding: 8px 14px; font-size: 16px; color: var(--muted); background: rgba(5,98,201,.5); }
+
+  /* ---------- Builder ---------- */
+  .bhead { height: 60px; border-bottom: 3px solid var(--ink); display: flex; align-items: center; gap: 16px; padding: 0 18px; }
+  .bhead .logo { font-size: 22px; } .bhead .logo .m { width: 30px; height: 30px; }
+  .bhead .slash { color: var(--ink); font-size: 24px; }
+  .bhead .pname { font-weight: 700; font-size: 19px; }
+  .status { display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--muted); position: relative; width: 110px; height: 22px; }
+  .status > span { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 8px; }
+  .tabs { display: flex; gap: 2px; background: var(--elev); padding: 3px; border: 2px solid var(--ink); margin-left: 8px; }
+  .tabs span { display: flex; align-items: center; gap: 7px; padding: 6px 14px; font-size: 15px; color: var(--muted); }
+  .tabs span.on { background: var(--cream); color: var(--ink); font-weight: 700; }
+  .bhead .right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--ink); background: var(--cream); color: var(--ink); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
+  .bbody { position: absolute; top: 60px; left: 0; right: 0; bottom: 0; display: flex; }
+  .chat { width: 470px; border-right: 3px solid var(--ink); display: flex; flex-direction: column; }
+  .phead { height: 42px; border-bottom: 2px solid var(--ink); display: flex; align-items: center; gap: 8px; padding: 0 16px; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--subtle); flex-shrink: 0; }
+  .msgs { flex: 1; overflow: hidden; position: relative; }
+  .msgs-in { position: absolute; left: 0; right: 0; top: 0; padding: 18px 18px; display: flex; flex-direction: column; gap: 14px; }
+  .umsg { align-self: flex-end; max-width: 92%; background: var(--cream); color: var(--ink); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); padding: 10px 14px; font-size: 16px; line-height: 1.45; }
+  .amsg { border: 2px solid var(--ink); background: rgba(5,98,201,.55); padding: 12px 14px; font-size: 15.5px; }
+  .amsg .st { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 15px; margin-bottom: 8px; }
+  .act { display: flex; align-items: center; gap: 10px; padding: 4px 0; font-size: 15px; color: var(--muted); }
+  .act .ic { position: relative; width: 17px; height: 17px; }
+  .act .ic svg { position: absolute; inset: 0; width: 17px; height: 17px; }
+  .act .ic .ck { color: var(--ok); stroke-width: 3; }
+  .act code { font-family: var(--mono); font-size: 14px; color: var(--cream); }
+  .badge { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; padding: 4px 10px; border: 2px solid var(--ink); background: var(--ok); color: var(--ink); font-weight: 700; font-size: 14px; }
+  .sum { margin-top: 10px; color: var(--cream); line-height: 1.5; font-size: 15.5px; }
+  .ccomp { border-top: 2px solid var(--ink); padding: 12px; flex-shrink: 0; }
+  .ccomp .box { border: 2px solid var(--ink); background: var(--elev); }
+  .ccomp .ta { height: 78px; padding: 10px 12px; font-size: 16px; }
+  .ccomp .ta .ph { color: var(--subtle); }
+  .ccomp .row { display: flex; justify-content: space-between; align-items: center; padding: 0 8px 8px; font-size: 12px; color: var(--subtle); }
+  .send { width: 36px; height: 36px; border: 2px solid var(--ink); background: var(--cream); color: var(--ink); display: flex; align-items: center; justify-content: center; box-shadow: 2px 2px 0 var(--ink); }
+  .center { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
+  .ptool { height: 42px; border-bottom: 2px solid var(--ink); display: flex; align-items: center; gap: 12px; padding: 0 14px; font-size: 14px; color: var(--muted); flex-shrink: 0; }
+  .ptool .purl { flex: 1; max-width: 520px; border: 2px solid var(--ink); background: var(--inset); padding: 4px 10px; font-family: var(--mono); font-size: 14px; position: relative; height: 28px; }
+  .ptool .purl span { position: absolute; left: 10px; top: 3px; }
+  .pframe { flex: 1; margin: 16px; border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); position: relative; overflow: hidden; background: var(--inset); }
+  .placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--muted); font-size: 18px; }
+  .skel { width: 60%; display: grid; gap: 12px; } .skel i { display: block; height: 16px; background: rgba(255,255,255,.12); } .skel i:nth-child(2) { width: 70%; } .skel i:nth-child(3) { width: 45%; }
+  .files { width: 270px; border-left: 3px solid var(--ink); }
+  .ft { padding: 10px 8px; font-family: var(--mono); font-size: 14.5px; }
+  .ft div { display: flex; align-items: center; gap: 8px; padding: 5px 8px; color: var(--muted); }
+  .ft div.d { color: var(--cream); font-weight: 600; }
+  .ft div.ind { padding-left: 28px; } .ft div.ind2 { padding-left: 48px; }
+
+  /* Generated site (Arrow) */
+  .gsite { position: absolute; inset: 0; background: #07060c; color: #f1ecff; font-family: var(--sans); overflow: hidden; clip-path: inset(0 0 100% 0); }
+  .g-nav { height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 1px solid #1d1830; }
+  .g-logo { font-family: var(--display); font-weight: 900; font-size: 24px; letter-spacing: .04em; display: flex; align-items: center; gap: 10px; }
+  .g-logo i { width: 22px; height: 22px; background: linear-gradient(135deg,#a855f7,#6d28d9); transform: rotate(45deg); display: block; }
+  .g-links { display: flex; gap: 28px; font-size: 15px; color: #a79fc4; }
+  .g-buy { background: #a855f7; color: #fff; padding: 9px 16px; font-weight: 700; font-size: 14px; border-radius: 8px; }
+  .g-hero { position: relative; padding: 70px 40px 0; text-align: center; }
+  .g-glow { position: absolute; left: 50%; top: 40px; width: 900px; height: 520px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(168,85,247,.55), rgba(109,40,217,.18) 60%, transparent); opacity: .35; }
+  .g-pill { position: relative; display: inline-block; border: 1px solid #3b2a63; color: #c4b5fd; padding: 6px 14px; border-radius: 99px; font-size: 14px; }
+  .g-h { position: relative; font-family: var(--display); font-weight: 900; font-size: 74px; line-height: 1; letter-spacing: -0.03em; margin-top: 22px; }
+  .g-h em { font-style: normal; background: linear-gradient(90deg,#c084fc,#7c3aed); -webkit-background-clip: text; color: transparent; }
+  .g-p { position: relative; color: #a79fc4; font-size: 19px; max-width: 620px; margin: 20px auto 0; line-height: 1.5; }
+  .g-cta { position: relative; display: flex; gap: 14px; justify-content: center; margin-top: 30px; }
+  .g-cta span { padding: 13px 24px; border-radius: 10px; font-weight: 700; font-size: 16px; }
+  .g-cta span:first-child { background: #a855f7; color: #fff; box-shadow: 0 0 40px rgba(168,85,247,.5); }
+  .g-cta span:last-child { border: 1px solid #3b2a63; color: #e9e3ff; }
+  .g-cards { position: relative; display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; padding: 50px 40px 0; }
+  .g-card { border: 1px solid #241c3d; background: #0f0b1c; border-radius: 14px; padding: 20px; text-align: left; }
+  .g-card b { display: block; font-size: 18px; margin-bottom: 8px; } .g-card span { color: #8f87ad; font-size: 14px; line-height: 1.5; }
+  .g-card i { display: block; width: 34px; height: 34px; border-radius: 9px; background: rgba(168,85,247,.2); border: 1px solid #6d28d9; margin-bottom: 14px; }
+
+  /* Deploy dialog */
+  #dlg-deploy { width: 640px; }
+  .slug { display: flex; margin-top: 22px; }
+  .slug .inp { flex: 1; font-family: var(--mono); }
+  .slug .suf { height: 44px; border: 2px solid var(--ink); border-left: 0; background: var(--elev); padding: 0 12px; display: flex; align-items: center; font-family: var(--mono); font-size: 16px; color: var(--muted); }
+  .avail { margin-top: 8px; font-size: 14px; color: var(--ok); display: flex; align-items: center; gap: 6px; }
+  .dsteps { margin-top: 18px; border: 2px solid var(--ink); background: rgba(5,98,201,.55); padding: 14px 16px; display: grid; gap: 8px; font-size: 16px; }
+  .dsteps .s { display: flex; align-items: center; gap: 10px; color: var(--ok); }
+  .dstatus { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 16px; }
+  .live { display: inline-flex; align-items: center; gap: 8px; color: var(--ok); font-weight: 700; }
+  .dfoot { display: flex; justify-content: flex-end; gap: 12px; margin-top: 22px; position: relative; height: 48px; }
+
+  /* Launch dialog */
+  #dlg-launch { width: 760px; height: 770px; padding: 0; display: flex; flex-direction: column; }
+  #dlg-launch .dh { padding: 26px 30px 14px; border-bottom: 2px solid var(--ink); flex-shrink: 0; }
+  #dlg-launch .dv { flex: 1; overflow: hidden; position: relative; }
+  #lscroll { position: absolute; left: 0; right: 0; top: 0; padding: 20px 30px 30px; display: grid; gap: 16px; }
+  .g2 { display: grid; grid-template-columns: 1fr 170px; gap: 16px; }
+  .g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+  .logo-up { display: flex; align-items: center; gap: 16px; border: 2px dashed var(--ink); padding: 12px; background: rgba(5,98,201,.4); }
+  .logo-up .thumb { width: 64px; height: 64px; border: 2px solid var(--ink); background: var(--inset); position: relative; overflow: hidden; }
+  .logo-up .thumb i { position: absolute; inset: 0; background: #07060c; display: flex; align-items: center; justify-content: center; }
+  .logo-up .thumb i::after { content: ""; width: 26px; height: 26px; background: linear-gradient(135deg,#c084fc,#6d28d9); transform: rotate(45deg); }
+  .logo-up .txt { font-size: 15px; color: var(--muted); }
+  .ta3 { height: 78px; border: 2px solid var(--ink); background: var(--inset); padding: 10px 12px; font-size: 16px; line-height: 1.45; }
+  .tax { border: 2px solid var(--ink); padding: 14px 16px 10px; }
+  .tax .top { display: flex; justify-content: space-between; align-items: baseline; }
+  .tax .pct { font-family: var(--mono); font-size: 30px; font-weight: 600; }
+  .tax .rng { font-size: 13px; color: var(--subtle); }
+  .track { position: relative; height: 8px; background: var(--elev); border-radius: 9px; margin: 14px 0 10px; }
+  .track .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--cream); border-radius: 9px; }
+  .track .knob { position: absolute; top: 50%; left: 0%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: var(--cream); border: 2px solid var(--ink); }
+  .ticks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; color: var(--subtle); }
+  .sel { height: 44px; border: 2px solid var(--ink); background: var(--blue); padding: 0 12px; display: flex; align-items: center; justify-content: space-between; font-size: 15.5px; }
+  .radios { display: flex; gap: 30px; padding-top: 4px; font-size: 17px; }
+  .radios span { display: flex; align-items: center; gap: 10px; }
+  .radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--ink); background: var(--inset); position: relative; }
+  .radio i { position: absolute; inset: 3px; border-radius: 50%; background: var(--cream); }
+  .buybox { border: 2px solid var(--ink); background: var(--blue); padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .buybox .q { grid-column: span 2; font-size: 14px; color: var(--muted); display: grid; gap: 4px; }
+  .buybox .q div { display: flex; justify-content: space-between; } .buybox .q b { color: var(--cream); font-weight: 600; }
+  .feerow { display: flex; justify-content: space-between; border-top: 2px solid var(--ink); padding-top: 14px; font-size: 16px; }
+  .feerow span:first-child { color: var(--muted); }
+  .wbar { border: 2px solid var(--ink); padding: 12px 14px; position: relative; min-height: 92px; }
+  .wbar .a { display: grid; gap: 10px; } .wbar .a .l { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 15px; } .wbar .a .bs { display: flex; gap: 10px; }
+  .wbar .b { position: absolute; inset: 0; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; font-size: 15px; visibility: hidden; opacity: 0; }
+  .wbar .b .addr { display: flex; align-items: center; gap: 10px; }
+  .review { border: 2px solid var(--ink); background: var(--blue); }
+  .review div { display: flex; justify-content: space-between; padding: 9px 16px; font-size: 15.5px; border-bottom: 2px solid var(--ink); }
+  .review div:last-child { border-bottom: 0; }
+  .review div span:first-child { color: var(--muted); }
+  .review .m { font-family: var(--mono); font-size: 14.5px; }
+  .note { display: flex; gap: 10px; font-size: 14px; color: var(--muted); line-height: 1.45; }
+  .lstep { position: absolute; left: 0; right: 0; top: 0; padding: 20px 30px; visibility: hidden; opacity: 0; display: grid; gap: 16px; }
+  .center-msg { text-align: center; padding-top: 120px; display: grid; gap: 16px; justify-items: center; font-size: 18px; }
+  .okline { display: flex; align-items: center; gap: 10px; color: var(--ok); font-size: 22px; font-weight: 700; }
+
+  /* Wallet popup (generic, unbranded) */
+  .wallet { position: absolute; right: 26px; top: 8px; width: 400px; background: #fff; color: #111; border-radius: 16px; box-shadow: 0 30px 80px rgba(0,0,0,.4); overflow: hidden; visibility: hidden; opacity: 0; font-family: var(--sans); }
+  .wallet .wh { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #eee; font-size: 14px; }
+  .wallet .net { display: flex; align-items: center; gap: 8px; background: #f4f4f5; padding: 6px 10px; border-radius: 99px; font-weight: 600; }
+  .wallet .net i { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; display: block; }
+  .wallet .wb { padding: 22px 20px; }
+  .wallet .site { display: flex; align-items: center; gap: 10px; justify-content: center; font-size: 14px; color: #555; }
+  .wallet .site img { width: 28px; height: 28px; border-radius: 6px; }
+  .wallet h4 { text-align: center; font-size: 22px; margin: 14px 0 6px; }
+  .wallet .sm { text-align: center; color: #666; font-size: 14px; }
+  .wallet .rows { margin-top: 18px; border: 1px solid #eee; border-radius: 12px; }
+  .wallet .rows div { display: flex; justify-content: space-between; padding: 11px 14px; font-size: 14.5px; border-bottom: 1px solid #f1f1f1; }
+  .wallet .rows div:last-child { border-bottom: 0; } .wallet .rows span:first-child { color: #666; }
+  .wallet .wf { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px 20px; }
+  .wallet .wf span { height: 46px; border-radius: 99px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; border: 1.5px solid #d4d4d8; }
+  .wallet .wf span.p { background: #111; color: #fff; border-color: #111; }
+  .wallet .pane { display: none; } .wallet .pane.on { display: block; }
+
+  /* Token dashboard */
+  .tview { position: absolute; inset: 0; padding: 30px; visibility: hidden; opacity: 0; overflow: hidden; }
+  .tdash { max-width: 860px; margin: 0 auto; border: 3px solid var(--ink); background: var(--blue); box-shadow: 8px 8px 0 var(--ink); }
+  .tdash .th { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 2px solid var(--ink); }
+  .tdash .th b { font-family: var(--display); font-size: 34px; font-weight: 900; }
+  .tdash dl { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 30px; padding: 22px 24px; }
+  .tdash dt { font-size: 14px; color: var(--muted); } .tdash dd { font-size: 18px; margin-top: 3px; }
+  .tdash .full { grid-column: span 2; }
+  .prog { height: 10px; background: var(--elev); border: 2px solid var(--ink); margin-top: 8px; } .prog i { display: block; height: 100%; width: 0; background: var(--cream); }
+  .tdash .tf { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px 24px; border-top: 2px solid var(--ink); }
+
+  /* ---------- Cards, captions, cursor ---------- */
+  .card-full { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; visibility: hidden; opacity: 0; }
+  .card-full .big { font-family: var(--display); font-weight: 900; text-transform: uppercase; font-size: 120px; line-height: .95; letter-spacing: -0.02em;
+    text-shadow: 2px 2px 0 var(--ink), 4px 4px 0 var(--ink), 6px 6px 0 var(--ink), 8px 8px 0 var(--ink); }
+  .card-full .big .b { color: var(--ink); text-shadow: none; display: block; }
+  .card-full .tag { margin-top: 34px; font-size: 30px; color: var(--cream); background: var(--ink); padding: 12px 24px; }
+  .card-full .flow { display: flex; gap: 18px; align-items: center; margin-top: 44px; font-family: var(--mono); font-size: 26px; font-weight: 600; }
+  .card-full .flow span { border: 3px solid var(--ink); background: var(--cream); color: var(--ink); padding: 10px 18px; box-shadow: 5px 5px 0 var(--ink); }
+  .card-full .disc { position: absolute; bottom: 60px; font-size: 18px; color: var(--muted); max-width: 1200px; }
+  .card-full .mk { width: 120px; height: 120px; border: 5px solid var(--ink); background: url("./logo-sm.png") center/cover; box-shadow: 8px 8px 0 var(--ink); margin-bottom: 40px; }
+
+  #cap { position: absolute; left: 72px; right: 72px; top: 936px; height: 104px; display: flex; align-items: center; gap: 22px; visibility: hidden; opacity: 0; }
+  #cap .stepchip { flex-shrink: 0; height: 74px; min-width: 210px; border: 4px solid var(--ink); background: var(--cream); color: var(--ink); box-shadow: 6px 6px 0 var(--ink); display: flex; flex-direction: column; justify-content: center; padding: 0 20px; }
+  #cap .stepchip small { font-family: var(--mono); font-size: 15px; font-weight: 700; letter-spacing: .08em; }
+  #cap .stepchip b { font-family: var(--display); font-size: 26px; font-weight: 900; text-transform: uppercase; line-height: 1; }
+  #cap .txt { flex: 1; height: 74px; border: 4px solid var(--ink); background: var(--ink); color: var(--cream); display: flex; align-items: center; padding: 0 26px; font-size: 30px; font-weight: 600; letter-spacing: -0.01em; position: relative; overflow: hidden; }
+  #cap .txt span { position: absolute; left: 26px; right: 26px; white-space: nowrap; }
+  #cursor { position: absolute; left: 0; top: 0; width: 34px; height: 34px; z-index: 50; visibility: hidden; transform-origin: 4px 4px; }
+  #ring { position: absolute; left: -26px; top: -26px; width: 52px; height: 52px; border-radius: 50%; border: 4px solid var(--ink); background: rgba(251,242,230,.6); z-index: 49; visibility: hidden; opacity: 0; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="ic-spin" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.2-8.6" /></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
+    <symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10" /></symbol>
+    <symbol id="ic-up" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" /></symbol>
+    <symbol id="ic-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></symbol>
+    <symbol id="ic-rocket" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.8.7-2.1-.1-2.9a2.2 2.2 0 0 0-2.9-.1z" /><path d="m12 15-3-3a22 22 0 0 1 2-3.9A12.9 12.9 0 0 1 22 2c0 2.7-.8 7.5-6 11a22.4 22.4 0 0 1-4 2z" /></symbol>
+    <symbol id="ic-coins" viewBox="0 0 24 24"><circle cx="8" cy="8" r="6" /><path d="M18.1 10.4A6 6 0 1 1 10.3 18" /><path d="M7 6h1v4" /></symbol>
+    <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></symbol>
+    <symbol id="ic-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6" /></symbol>
+    <symbol id="ic-term" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6M12 19h8" /></symbol>
+    <symbol id="ic-msg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></symbol>
+    <symbol id="ic-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol>
+    <symbol id="ic-file" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><path d="M14 3v6h6" /></symbol>
+    <symbol id="ic-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></symbol>
+    <symbol id="ic-wallet" viewBox="0 0 24 24"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5" /><path d="M16 14h.01" /></symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 2 2 4-4" /></symbol>
+    <symbol id="ic-ext" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></symbol>
+    <symbol id="ic-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></symbol>
+    <symbol id="ic-reload" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5" /></symbol>
+    <symbol id="ic-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></symbol>
+    <symbol id="ic-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2" /><path d="M11 18h2" /></symbol>
+    <symbol id="ic-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 6-10 7L2 6" /></symbol>
+  </defs>
+</svg>
+
+<div id="stage">
+
+  <!-- ===== Browser window ===== -->
+  <div id="win" class="h">
+    <div class="chrome">
+      <div class="lights"><i></i><i></i><i></i></div>
+      <div class="url"><svg class="i"><use href="#ic-lock" /></svg><span id="urltext">aestrodom.org</span></div>
+    </div>
+    <div id="vp">
+
+      <!-- 1. Landing -->
+      <div class="scene" id="s-landing">
+        <div class="site-head">
+          <div class="logo"><div class="m"></div>aestrodom</div>
+          <div class="nav"><span>Battleground</span><span>Platform</span><span>How it works</span><span>Token launch</span><span>FAQ</span></div>
+          <div style="margin-left:auto"><span class="btn btn-accent btn-sm" id="l-start">Start building <svg class="i"><use href="#ic-arrow" /></svg></span></div>
+        </div>
+        <div class="hero">
+          <span class="eyebrow">AI application builder · Pons V2 on Robinhood Chain</span>
+          <div class="h1">Build anything with AI.<span class="b">Claude writes it. Aestrodom ships it.</span></div>
+          <p class="lead">Describe your idea. Claude writes the code, you watch the live preview, deploy it to your own domain — and launch a token for it.</p>
+          <div class="hero-cta"><span class="btn btn-accent" id="l-cta">Start a project <svg class="i"><use href="#ic-arrow" /></svg></span><span class="btn btn-sec">How it works</span></div>
+        </div>
+      </div>
+
+      <!-- 2. Login -->
+      <div class="scene" id="s-login">
+        <div class="site-head"><div class="logo"><div class="m"></div>aestrodom</div></div>
+        <div class="auth-card">
+          <h2>Sign in</h2>
+          <p>Welcome to Aestrodom. Build, deploy and launch.</p>
+          <span class="btn btn-accent" id="li-btn"><span id="li-label">Continue with Privy</span></span>
+          <small>Sign in with email, wallet or social account. New here? An account is created automatically.</small>
+        </div>
+        <div class="overlay" id="privy-ov"></div>
+        <div class="privy" id="privy">
+          <div id="pv-a">
+            <div class="t">Log in or sign up</div>
+            <div class="pinp"><svg class="i" style="color:#888"><use href="#ic-mail" /></svg><span id="pv-email" style="color:#111"></span><span class="ph-email" style="color:#a1a1aa">your@email.com</span><span class="sub" id="pv-submit">Submit</span></div>
+            <div class="alt"><div><b></b>Google</div><div><b></b>Twitter / X</div><div><b></b>Continue with a wallet</div></div>
+          </div>
+          <div id="pv-b" class="h" style="position:absolute;left:30px;right:30px;top:30px">
+            <div class="t">Enter confirmation code</div>
+            <p style="text-align:center;color:#666;font-size:14px;margin:-10px 0 16px">Sent to you@studio.dev</p>
+            <div class="code"><span>4</span><span>8</span><span>2</span><span>1</span><span>9</span><span>6</span></div>
+          </div>
+          <div class="foot">Protected by Privy</div>
+        </div>
+      </div>
+
+      <!-- 3. New project -->
+      <div class="scene" id="s-new">
+        <div class="side">
+          <div class="logo"><div class="m"></div>aestrodom</div>
+          <a class="on"><svg class="i"><use href="#ic-grid" /></svg>Dashboard</a>
+          <a><svg class="i"><use href="#ic-folder" /></svg>Projects</a>
+          <a><svg class="i"><use href="#ic-grid" /></svg>Templates</a>
+          <a><svg class="i"><use href="#ic-coins" /></svg>Battleground</a>
+          <a><svg class="i"><use href="#ic-code" /></svg>Settings</a>
+        </div>
+        <div class="main">
+          <h2>New project</h2>
+          <p class="sub">Describe the website or application you want to build. Claude takes it from there.</p>
+          <div class="composer">
+            <div class="ta"><span id="np-prompt"></span><span class="caret" id="np-caret"></span><span class="ph" id="np-ph">Describe the website or application you want to build...</span></div>
+            <div class="row">
+              <div class="inp" id="np-name-box"><span id="np-name"></span><span style="color:var(--subtle)" id="np-name-ph">Project name (optional)</span></div>
+              <span class="btn btn-accent" id="np-build"><span id="np-build-l">Build with Claude</span> <svg class="i" id="np-build-i"><use href="#ic-arrow" /></svg></span>
+            </div>
+          </div>
+          <div class="chips"><span>↗ Build a crypto landing page</span><span>↗ Build a SaaS dashboard</span><span>↗ Build a portfolio</span><span>↗ Build an NFT marketplace</span><span>↗ Build a game landing page</span></div>
+        </div>
+      </div>
+
+      <!-- 4. Builder -->
+      <div class="scene" id="s-builder">
+        <div class="bhead">
+          <div class="logo"><div class="m"></div>aestrodom</div>
+          <span class="slash">/</span>
+          <span class="pname">Arrow</span>
+          <div class="status">
+            <span id="st-building"><span class="dot" style="background:var(--warn)"></span>Building</span>
+            <span id="st-draft" class="h"><span class="dot" style="background:var(--muted)"></span>Draft</span>
+            <span id="st-pub" class="h"><span class="dot" style="background:var(--ok)"></span>Published</span>
+          </div>
+          <div class="tabs">
+            <span class="on" id="tab-prev"><svg class="i"><use href="#ic-eye" /></svg>Preview</span>
+            <span><svg class="i"><use href="#ic-code" /></svg>Code</span>
+            <span><svg class="i"><use href="#ic-term" /></svg>Console</span>
+            <span id="tab-tok" class="h"><svg class="i"><use href="#ic-coins" /></svg>$ARROW</span>
+          </div>
+          <div class="right">
+            <span class="btn btn-sec btn-sm" id="b-deploy"><svg class="i"><use href="#ic-rocket" /></svg><span style="position:relative;display:inline-block;width:84px;height:20px"><span id="b-deploy-a" style="position:absolute;left:0;top:0">Deploy</span><span id="b-deploy-b" class="h" style="position:absolute;left:0;top:0">Deployed</span></span></span>
+            <span class="btn btn-accent btn-sm h" id="b-launch"><svg class="i"><use href="#ic-coins" /></svg>Launch Token</span>
+            <div class="avatar">Y</div>
+          </div>
+        </div>
+        <div class="bbody">
+          <section class="chat">
+            <div class="phead"><svg class="i"><use href="#ic-msg" /></svg>AI Chat</div>
+            <div class="msgs"><div class="msgs-in" id="msgs">
+              <div class="umsg" id="m-u1">Build a crypto landing page called Arrow with a black background, purple accents, animated hero, feature cards, tokenomics and roadmap.</div>
+              <div class="amsg" id="m-a1">
+                <div class="st" id="a1-st"><svg class="i spin"><use href="#ic-spin" /></svg><span>Claude is working…</span></div>
+                <div class="act h" id="a1-0"><span class="ic"><svg class="i spin sp"><use href="#ic-spin" /></svg><svg class="i ck h"><use href="#ic-check" /></svg></span>Inspecting project</div>
+                <div class="act h" id="a1-1"><span class="ic"><svg class="i spin sp"><use href="#ic-spin" /></svg><svg class="i ck h"><use href="#ic-check" /></svg></span>Writing file <code>index.html</code></div>
+                <div class="act h" id="a1-2"><span class="ic"><svg class="i spin sp"><use href="#ic-spin" /></svg><svg class="i ck h"><use href="#ic-check" /></svg></span>Writing file <code>src/App.tsx</code></div>
+                <div class="act h" id="a1-3"><span class="ic"><svg class="i spin sp"><use href="#ic-spin" /></svg><svg class="i ck h"><use href="#ic-check" /></svg></span>Writing file <code>src/components/Hero.tsx</code></div>
+                <div class="act h" id="a1-4"><span class="ic"><svg class="i spin sp"><use href="#ic-spin" /></svg><svg class="i ck h"><use href="#ic-check" /></svg></span>Writing file <code>src/components/Features.tsx</code></div>
+                <div class="act h" id="a1-5"><span class="ic"><svg class="i spin sp"><use href="#ic-spin" /></svg><svg class="i ck h"><use href="#ic-check" /></svg></span>Writing file <code>src/components/Tokenomics.tsx</code></div>
+                <div class="act h" id="a1-6"><span class="ic"><svg class="i spin sp"><use href="#ic-spin" /></svg><svg class="i ck h"><use href="#ic-check" /></svg></span>Writing file <code>src/components/Roadmap.tsx</code></div>
+                <div class="act h" id="a1-7"><span class="ic"><svg class="i spin sp"><use href="#ic-spin" /></svg><svg class="i ck h"><use href="#ic-check" /></svg></span>Building application</div>
+                <div class="badge h" id="a1-b"><svg class="i"><use href="#ic-check" /></svg>Build passed</div>
+                <div class="sum h" id="a1-s">Built the Arrow landing page: animated hero, 3 feature cards, tokenomics and a roadmap. The preview is live.</div>
+              </div>
+              <div class="umsg h" id="m-u2">Make the hero more cinematic</div>
+              <div class="amsg h" id="m-a2">
+                <div class="act h" id="a2-0"><span class="ic"><svg class="i spin sp"><use href="#ic-spin" /></svg><svg class="i ck h"><use href="#ic-check" /></svg></span>Reading file <code>src/components/Hero.tsx</code></div>
+                <div class="act h" id="a2-1"><span class="ic"><svg class="i spin sp"><use href="#ic-spin" /></svg><svg class="i ck h"><use href="#ic-check" /></svg></span>Editing file <code>src/components/Hero.tsx</code></div>
+                <div class="act h" id="a2-2"><span class="ic"><svg class="i spin sp"><use href="#ic-spin" /></svg><svg class="i ck h"><use href="#ic-check" /></svg></span>Building application</div>
+                <div class="sum h" id="a2-s">Hero now has a glowing purple backdrop and a larger headline. Only Hero.tsx changed.</div>
+              </div>
+            </div></div>
+            <div class="ccomp">
+              <div class="box" id="c-box">
+                <div class="ta"><span id="c-text"></span><span class="ph" id="c-ph">Ask Claude to change anything…</span></div>
+                <div class="row"><span>Enter to send · Shift+Enter for a new line</span><span class="send" id="c-send"><svg class="i"><use href="#ic-up" /></svg></span></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="center">
+            <div class="ptool">
+              <svg class="i" style="color:var(--cream)"><use href="#ic-monitor" /></svg><svg class="i"><use href="#ic-phone" /></svg>
+              <div class="purl"><span id="purl-a">arrow.preview.aestrodom.org</span><span id="purl-b" class="h">https://arrow.aestrodom.org</span></div>
+              <svg class="i"><use href="#ic-reload" /></svg><svg class="i"><use href="#ic-ext" /></svg>
+            </div>
+            <div class="pframe" id="pframe">
+              <div class="placeholder" id="ph"><svg class="i spin" style="font-size:34px;color:var(--cream)"><use href="#ic-spin" /></svg>Building your app…<div class="skel"><i></i><i></i><i></i></div></div>
+              <div class="gsite" id="gsite">
+                <div class="g-nav"><div class="g-logo"><i></i>ARROW</div><div class="g-links"><span>Features</span><span>Tokenomics</span><span>Roadmap</span></div><span class="g-buy">Buy $ARROW</span></div>
+                <div class="g-hero">
+                  <div class="g-glow" id="g-glow"></div>
+                  <span class="g-pill">● Live on Robinhood Chain</span>
+                  <div class="g-h" id="g-h">Aim. Launch.<br /><em>Hit the target.</em></div>
+                  <p class="g-p">Arrow is a community token with a fair launch, transparent tokenomics and a roadmap built in public.</p>
+                  <div class="g-cta"><span>Get $ARROW</span><span>Read the roadmap</span></div>
+                </div>
+                <div class="g-cards" id="g-cards">
+                  <div class="g-card"><i></i><b>Fair launch</b><span>Bonding curve on Pons V2. No presale, no team allocation.</span></div>
+                  <div class="g-card"><i></i><b>Tokenomics</b><span>1B supply · 100% on the curve · graduates to a DEX.</span></div>
+                  <div class="g-card"><i></i><b>Roadmap</b><span>Q4 launch · Q1 staking · Q2 cross-chain.</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="tview" id="tview">
+              <div class="tdash">
+                <div class="th"><b>$ARROW</b><span class="live"><span class="dot" style="background:var(--ok)"></span>LIVE</span></div>
+                <dl>
+                  <div><dt>Token Address</dt><dd class="mono">0xA7c3…4e91B2 <svg class="i" style="color:var(--subtle)"><use href="#ic-copy" /></svg></dd></div>
+                  <div><dt>Curve Address</dt><dd class="mono">0x5d1F…a0C7e3 <svg class="i" style="color:var(--subtle)"><use href="#ic-copy" /></svg></dd></div>
+                  <div><dt>Website</dt><dd>arrow.aestrodom.org</dd></div>
+                  <div><dt>Launch Transaction</dt><dd class="mono">0x9be0…31f8d4</dd></div>
+                  <div><dt>Creator Tax</dt><dd>2.5%</dd></div>
+                  <div><dt>Buyback</dt><dd>Enabled</dd></div>
+                  <div><dt>Phase</dt><dd>Bonding curve</dd></div>
+                  <div class="full"><dt style="display:flex;justify-content:space-between"><span>Graduation progress</span><span id="t-prog-l">0.1000 / 4.00 ETH</span></dt><div class="prog"><i id="t-prog"></i></div></div>
+                </dl>
+                <div class="tf">
+                  <span class="btn btn-sec btn-sm">View Token <svg class="i"><use href="#ic-ext" /></svg></span>
+                  <span class="btn btn-sec btn-sm">Open Website <svg class="i"><use href="#ic-ext" /></svg></span>
+                  <span class="btn btn-sec btn-sm">Copy Address <svg class="i"><use href="#ic-copy" /></svg></span>
+                  <span class="btn btn-sec btn-sm">View Transaction <svg class="i"><use href="#ic-ext" /></svg></span>
+                </div>
+              </div>
+              <p style="text-align:center;margin-top:16px;font-size:14px;color:var(--subtle)">On-chain state · refreshed every 20s</p>
+            </div>
+          </section>
+
+          <aside class="files">
+            <div class="phead"><svg class="i"><use href="#ic-folder" /></svg>Files</div>
+            <div class="ft" id="ft">
+              <div class="d f0 h"><svg class="i"><use href="#ic-file" /></svg>index.html</div>
+              <div class="d f0 h"><svg class="i"><use href="#ic-folder" /></svg>src</div>
+              <div class="ind f1 h"><svg class="i"><use href="#ic-file" /></svg>App.tsx</div>
+              <div class="ind f1 h"><svg class="i"><use href="#ic-file" /></svg>main.tsx</div>
+              <div class="ind f1 h"><svg class="i"><use href="#ic-file" /></svg>index.css</div>
+              <div class="ind f2 h"><svg class="i"><use href="#ic-folder" /></svg>components</div>
+              <div class="ind2 f2 h" id="f-hero"><svg class="i"><use href="#ic-file" /></svg>Hero.tsx</div>
+              <div class="ind2 f3 h"><svg class="i"><use href="#ic-file" /></svg>Features.tsx</div>
+              <div class="ind2 f4 h"><svg class="i"><use href="#ic-file" /></svg>Tokenomics.tsx</div>
+              <div class="ind2 f5 h"><svg class="i"><use href="#ic-file" /></svg>Roadmap.tsx</div>
+            </div>
+          </aside>
+        </div>
+
+        <!-- Deploy dialog -->
+        <div class="overlay" id="ov-deploy"></div>
+        <div class="dialog" id="dlg-deploy">
+          <h3>Deploy Arrow</h3>
+          <p class="desc">Publish the current version of your project to its own URL.</p>
+          <div class="field" style="margin-top:22px"><label>Domain</label></div>
+          <div class="slug" style="margin-top:0"><div class="inp">arrow</div><div class="suf">.aestrodom.org</div></div>
+          <div class="avail"><svg class="i"><use href="#ic-check" /></svg>arrow.aestrodom.org is available</div>
+          <div class="dsteps h" id="d-steps">
+            <div class="s h"><svg class="i"><use href="#ic-check" /></svg>Build successful</div>
+            <div class="s h"><svg class="i"><use href="#ic-check" /></svg>Container started</div>
+            <div class="s h"><svg class="i"><use href="#ic-check" /></svg>Domain configured</div>
+          </div>
+          <div class="dstatus h" id="d-status"><span style="color:var(--muted)">Status</span><span class="live"><span class="dot" style="background:var(--ok)"></span>Live · <span class="mono">https://arrow.aestrodom.org</span></span></div>
+          <div class="dfoot">
+            <span class="btn btn-accent" id="d-go" style="position:absolute;right:0;top:0"><svg class="i spin h" id="d-go-sp"><use href="#ic-spin" /></svg><svg class="i" id="d-go-i"><use href="#ic-rocket" /></svg>Deploy</span>
+            <span class="btn btn-accent h" id="d-done" style="position:absolute;right:0;top:0;width:140px">Done</span>
+          </div>
+        </div>
+
+        <!-- Launch dialog -->
+        <div class="overlay" id="ov-launch"></div>
+        <div class="dialog" id="dlg-launch">
+          <div class="dh"><h3>Launch Token</h3><p class="desc">Turn your project into a token on Pons V2 · Robinhood Chain.</p></div>
+          <div class="dv">
+            <div class="lstep" id="l-loading" style="padding-top:60px"><div style="display:flex;align-items:center;gap:12px;color:var(--muted);font-size:17px"><svg class="i spin" style="color:var(--cream)"><use href="#ic-spin" /></svg>Reading Pons V2 configuration…</div></div>
+            <div id="lscroll" class="h">
+              <div class="g2">
+                <div class="field"><label>Token Name</label><div class="inp">Arrow</div></div>
+                <div class="field"><label>Token Symbol</label><div class="inp">ARROW</div></div>
+              </div>
+              <div class="field"><label>Token Logo <span class="hint">Stored on IPFS via Pinata</span></label>
+                <div class="logo-up" id="l-logo"><div class="thumb"><i id="l-logo-img" class="h"></i></div><div class="txt"><span id="l-logo-a">Click to upload a PNG, JPG or WEBP</span><span id="l-logo-b" class="h" style="color:var(--ok)">✓ arrow-logo.png · uploaded to IPFS</span></div></div></div>
+              <div class="field"><label>Description</label><div class="ta3">Arrow is a community token with a fair launch, transparent tokenomics and a roadmap built in public.</div></div>
+              <div class="field"><label>Website</label><div class="inp mono" style="color:var(--muted);font-size:15px">https://arrow.aestrodom.org</div></div>
+              <div class="g3">
+                <div class="field"><label>X / Twitter</label><div class="inp" id="l-x-box" style="font-size:15px"><span id="l-x"></span><span id="l-x-ph" style="color:var(--subtle)">https://x.com/…</span></div></div>
+                <div class="field"><label>Telegram</label><div class="inp" style="font-size:15px;color:var(--subtle)">https://t.me/…</div></div>
+                <div class="field"><label>Discord</label><div class="inp" style="font-size:15px;color:var(--subtle)">https://discord.gg/…</div></div>
+              </div>
+              <div class="field"><label>Creator Fee Recipient <span class="hint">Defaults to your connected wallet</span></label><div class="inp mono" style="font-size:14.5px"><span id="l-rcpt" style="color:var(--subtle)">0x…</span></div></div>
+              <div class="field"><label>Creator Tax <span class="hint">Paid to the creator fee recipient on every trade</span></label>
+                <div class="tax"><div class="top"><span class="pct" id="l-tax">1.0%</span><span class="rng">1% – 4%</span></div>
+                  <div class="track"><div class="fill" id="l-fill"></div><div class="knob" id="l-knob"></div></div>
+                  <div class="ticks"><span>1%</span><span>2%</span><span>3%</span><span>4%</span></div></div></div>
+              <div class="field"><label>Launch Configuration</label><div class="sel"><span>#0 · graduates at 4 ETH · 1% fee · supply 1B</span><span>▾</span></div></div>
+              <div class="field"><label>Launch Mode</label>
+                <div class="radios"><span id="r-launch"><span class="radio"><i id="r-launch-i"></i></span>Launch Only</span><span id="r-buy"><span class="radio"><i id="r-buy-i" class="h"></i></span>Launch + Buy</span></div></div>
+              <div class="buybox h" id="l-buy">
+                <div class="field"><label>Amount (ETH)</label><div class="inp">0.1</div></div>
+                <div class="field"><label>Slippage (%)</label><div class="inp">5</div></div>
+                <div class="q"><div><span>Expected tokens</span><b>24.6M</b></div><div><span>Minimum tokens</span><b>23.37M</b></div></div>
+              </div>
+              <div class="feerow"><span>Launch Fee</span><span class="mono">0.001 ETH</span></div>
+              <div class="wbar" id="l-wbar">
+                <div class="a" id="l-wa"><div class="l"><svg class="i"><use href="#ic-wallet" /></svg>Connect Wallet</div><div class="bs"><span class="btn btn-sec btn-sm" id="l-inj">Injected</span><span class="btn btn-sec btn-sm">Coinbase Wallet</span><span class="btn btn-sec btn-sm">WalletConnect</span></div></div>
+                <div class="b" id="l-wb"><div class="addr"><span class="dot" style="background:var(--ok)"></span><span class="mono">0x3F2a…9C1d</span><span style="color:var(--muted);font-size:13px">0.4520 ETH</span></div><div style="display:flex;gap:14px;font-size:13px"><span style="color:var(--muted)">Robinhood Chain</span><span style="color:var(--subtle)">Disconnect</span></div></div>
+              </div>
+              <span class="btn btn-accent" id="l-review" style="width:100%;height:54px"><svg class="i spin h" id="l-review-sp"><use href="#ic-spin" /></svg>Review Launch</span>
+            </div>
+
+            <div class="lstep" id="l-rev">
+              <div class="review">
+                <div><span>Token</span><span>Arrow ($ARROW)</span></div>
+                <div><span>Website</span><span class="m">https://arrow.aestrodom.org</span></div>
+                <div><span>Creator fee recipient</span><span class="m">0x3F2a8b…e49C1d</span></div>
+                <div><span>Creator tax</span><span>2.5%</span></div>
+                <div><span>Launch configuration</span><span>#0</span></div>
+                <div><span>Pinned economics</span><span class="m">0x7e1c0d…b52a90</span></div>
+                <div><span>Launch fee</span><span class="m">0.001 ETH</span></div>
+                <div><span>Initial buy</span><span class="m">0.1 ETH</span></div>
+                <div><span>Min tokens out</span><span class="m">23.37M</span></div>
+                <div><span>Est. network fee</span><span class="m">≤ 0.000042 ETH</span></div>
+                <div><span>Total</span><span class="m" style="font-weight:700">0.101 ETH + gas</span></div>
+              </div>
+              <p class="note"><svg class="i" style="color:var(--cream);margin-top:2px"><use href="#ic-shield" /></svg>Simulated against Robinhood Chain. You will sign this transaction in your own wallet; Aestrodom never holds your keys or funds.</p>
+              <div style="display:flex;gap:12px">
+                <span class="btn btn-sec">Back</span>
+                <span class="btn btn-accent" id="l-go" style="flex:1;height:54px;position:relative"><span id="l-go-a">Launch Token</span><span id="l-go-b" class="h" style="position:absolute;display:flex;gap:10px;align-items:center"><svg class="i spin"><use href="#ic-spin" /></svg>Confirm in your wallet…</span></span>
+              </div>
+            </div>
+
+            <div class="lstep" id="l-conf">
+              <div class="center-msg"><svg class="i spin" style="font-size:36px;color:var(--cream)"><use href="#ic-spin" /></svg>Transaction submitted. Waiting for confirmation…<span class="mono" style="color:var(--muted);font-size:15px">0x9be04c…a131f8d4 ↗</span></div>
+            </div>
+
+            <div class="lstep" id="l-ok" style="padding-top:60px">
+              <div class="okline"><svg class="i" style="stroke-width:3"><use href="#ic-check" /></svg>$ARROW is live on Pons V2</div>
+              <div class="review">
+                <div><span>Token</span><span class="m">0xA7c3…4e91B2</span></div>
+                <div><span>Curve</span><span class="m">0x5d1F…a0C7e3</span></div>
+                <div><span>Transaction</span><span class="m">0x9be0…31f8d4</span></div>
+              </div>
+              <span class="btn btn-accent" id="l-view" style="width:100%;height:54px">View token dashboard</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wallet popup (generic) -->
+        <div class="wallet" id="wallet">
+          <div class="wh"><b>Your Wallet</b><span class="net"><i></i>Robinhood Chain</span></div>
+          <div class="pane on" id="w-connect">
+            <div class="wb">
+              <div class="site"><img src="./logo-sm.png" alt="" />aestrodom.org</div>
+              <h4>Connect to Aestrodom</h4>
+              <p class="sm">Allow this site to see your address and request transactions.</p>
+              <div class="rows"><div><span>Account</span><span class="mono">0x3F2a…9C1d</span></div><div><span>Balance</span><span>0.4520 ETH</span></div></div>
+            </div>
+            <div class="wf"><span>Cancel</span><span class="p" id="w-c-ok">Connect</span></div>
+          </div>
+          <div class="pane" id="w-tx">
+            <div class="wb">
+              <div class="site"><img src="./logo-sm.png" alt="" />aestrodom.org</div>
+              <h4>Confirm transaction</h4>
+              <p class="sm">LaunchAndBuy · launchAndBuy()</p>
+              <div class="rows"><div><span>Network</span><span>Robinhood Chain</span></div><div><span>Amount</span><span>0.101 ETH</span></div><div><span>Network fee</span><span>≤ 0.000042 ETH</span></div><div><span>Total</span><b>0.101042 ETH</b></div></div>
+            </div>
+            <div class="wf"><span>Reject</span><span class="p" id="w-t-ok">Confirm</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== Intro / outro ===== -->
+  <div class="card-full" id="intro">
+    <div class="mk"></div>
+    <div class="big">Aestrodom Demo<span class="b">Idea → Live → Token</span></div>
+    <div class="tag">How to use Aestrodom, from zero to token launch, step by step</div>
+  </div>
+  <div class="card-full" id="outro">
+    <div class="mk"></div>
+    <div class="big">Done.<span class="b">$ARROW is live.</span></div>
+    <div class="flow"><span>Describe it</span>→<span>Claude build</span>→<span>Deploy</span>→<span>Launch Token</span></div>
+    <div class="tag">aestrodom — Build anything with AI.</div>
+    <div class="disc">Addresses, balances and figures in this video are illustrative. Real launches read the Pons V2 configuration from the chain and are always signed in your own wallet.</div>
+  </div>
+
+  <!-- ===== Caption ===== -->
+  <div id="cap">
+    <div class="stepchip"><small id="cap-n">STEP 1/8</small><b id="cap-t">Open Aestrodom</b></div>
+    <div class="txt" id="cap-txt"></div>
+  </div>
+
+  <div id="ring"></div>
+  <svg id="cursor" viewBox="0 0 34 34"><path d="M4 3 L4 27 L10.5 21 L15 31 L19.5 29 L15 19.5 L24 19.5 Z" fill="#fbf2e6" stroke="#0b0b0b" stroke-width="2.6" stroke-linejoin="round" /></svg>
+</div>
+
+<script src="./gsap.min.js"></script>
+<script>
+(async function () {
+  await document.fonts.ready;
+  const $ = (s) => document.querySelector(s);
+  const stage = $("#stage");
+  const tl = gsap.timeline({ paused: true });
+  const D = 79;
+
+  // ---- helpers ----
+  const show = (sel, at, d = 0.35, extra = {}) => tl.to(sel, { autoAlpha: 1, duration: d, ...extra }, at);
+  const hide = (sel, at, d = 0.3) => tl.to(sel, { autoAlpha: 0, duration: d }, at);
+  const swap = (a, b, at) => { tl.set(a, { autoAlpha: 0 }, at); tl.set(b, { autoAlpha: 1 }, at); };
+  function type(sel, text, at, dur) {
+    const el = $(sel); const o = { p: 0 };
+    tl.to(o, { p: 1, duration: dur, ease: "none", onUpdate() { el.textContent = text.slice(0, Math.round(o.p * text.length)); } }, at);
+  }
+  function pt(sel, ox = 0.5, oy = 0.5) {
+    const r = $(sel).getBoundingClientRect(), s = stage.getBoundingClientRect();
+    return { x: r.left - s.left + r.width * ox, y: r.top - s.top + r.height * oy };
+  }
+  const cursor = $("#cursor"), ring = $("#ring");
+  function move(sel, at, dur = 0.7, ox = 0.5, oy = 0.5) {
+    tl.to(cursor, { x: () => pt(sel, ox, oy).x - 4, y: () => pt(sel, ox, oy).y - 3, duration: dur, ease: "power2.inOut" }, at);
+  }
+  function click(at) {
+    tl.to(cursor, { scale: 0.82, duration: 0.09, yoyo: true, repeat: 1 }, at);
+    tl.fromTo(ring, { x: () => gsap.getProperty(cursor, "x") + 4, y: () => gsap.getProperty(cursor, "y") + 3, scale: 0.3, autoAlpha: 0.95 },
+      { scale: 1.5, autoAlpha: 0, duration: 0.5, ease: "power2.out", immediateRender: false }, at);
+  }
+  function press(sel, at) { tl.to(sel, { x: 2, y: 2, boxShadow: "1px 1px 0 #0b0b0b", duration: 0.08, yoyo: true, repeat: 1 }, at); }
+  function scene(from, to, at) { if (from) hide(from, at, 0.35); show(to, at + 0.15, 0.4); }
+  function act(id, start, end) { show(id, start, 0.25); if (end != null) { tl.set(id + " .sp", { autoAlpha: 0 }, end); tl.set(id + " .ck", { autoAlpha: 1 }, end); } }
+  const setText = (sel, t, at) => tl.call(() => { $(sel).textContent = t; }, null, at);
+  const cls = (sel, c, at) => tl.call(() => { $(sel).className = c; }, null, at);
+  const url = (t, at) => setText("#urltext", t, at);
+
+  // captions
+  const capTxt = $("#cap-txt");
+  function caption(at, n, title, text) {
+    const span = document.createElement("span"); span.textContent = text; span.style.opacity = 0; span.style.visibility = "hidden"; capTxt.appendChild(span);
+    const prev = capTxt.children.length > 1 ? capTxt.children[capTxt.children.length - 2] : null;
+    if (prev) tl.to(prev, { autoAlpha: 0, y: -20, duration: 0.3 }, at);
+    tl.fromTo(span, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power2.out" }, at + 0.1);
+    setText("#cap-n", n, at); setText("#cap-t", title, at);
+    tl.fromTo(".stepchip", { scale: 0.9 }, { scale: 1, duration: 0.35, ease: "back.out(3)" }, at);
+  }
+
+  // continuous spinners
+  tl.fromTo(".spin", { rotation: 0 }, { rotation: 360 * 70, duration: D, ease: "none", transformOrigin: "50% 50%" }, 0);
+
+  // ===== 0 Intro =====
+  tl.fromTo("#intro", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 }, 0.1);
+  tl.from("#intro .mk", { scale: 0, rotation: -20, duration: 0.6, ease: "back.out(2)" }, 0.2);
+  tl.from("#intro .big", { y: 60, autoAlpha: 0, duration: 0.7, ease: "power3.out" }, 0.45);
+  tl.from("#intro .tag", { y: 30, autoAlpha: 0, duration: 0.5 }, 1.1);
+  hide("#intro", 4.0, 0.4);
+
+  // ===== 1 Landing =====
+  tl.fromTo("#win", { autoAlpha: 0, y: 40, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.6, ease: "power3.out" }, 4.3);
+  show("#s-landing", 4.3, 0.01);
+  url("aestrodom.org", 4.3);
+  show("#cap", 4.6, 0.4);
+  caption(4.6, "STEP 1/8", "Open Aestrodom", "Open aestrodom.org and click “Start a project”.");
+  tl.set(cursor, { autoAlpha: 1, x: 1500, y: 760 }, 4.8);
+  move("#l-cta", 5.2, 1.0);
+  click(6.6); press("#l-cta", 6.6);
+
+  // ===== 2 Login =====
+  scene("#s-landing", "#s-login", 7.0); url("aestrodom.org/login", 7.1);
+  caption(7.2, "STEP 2/8", "Sign in", "Sign in with Privy — email, wallet or a social account.");
+  move("#li-btn", 7.8, 0.7);
+  click(8.6); press("#li-btn", 8.6);
+  show("#privy-ov", 8.9, 0.25);
+  tl.fromTo("#privy", { autoAlpha: 0, scale: 0.94 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 8.9);
+  tl.set(".ph-email", { display: "none" }, 9.6);
+  type("#pv-email", "you@studio.dev", 9.6, 1.1);
+  move("#pv-submit", 10.6, 0.5);
+  click(11.2);
+  hide("#pv-a", 11.4, 0.2); show("#pv-b", 11.5, 0.25);
+  tl.from("#pv-b .code span", { autoAlpha: 0, y: 8, stagger: 0.15, duration: 0.15 }, 11.8);
+  hide("#privy", 13.0, 0.25); hide("#privy-ov", 13.0, 0.25);
+  setText("#li-label", "Signing you in…", 13.1);
+
+  // ===== 3 New project =====
+  scene("#s-login", "#s-new", 13.9); url("aestrodom.org/dashboard/new", 14.0);
+  caption(14.0, "STEP 3/8", "Describe it", "Describe your app, name the project, then click “Build with Claude”.");
+  tl.set("#np-ph", { display: "none" }, 14.6);
+  type("#np-prompt", "Build a crypto landing page called Arrow with a black background, purple accents, animated hero, feature cards, tokenomics and roadmap.", 14.6, 4.6);
+  move("#np-name-box", 19.0, 0.6);
+  click(19.6);
+  tl.set("#np-name-ph", { display: "none" }, 19.7); tl.set("#np-caret", { autoAlpha: 0 }, 19.7);
+  type("#np-name", "Arrow", 19.8, 0.5);
+  move("#np-build", 20.4, 0.6);
+  click(21.1); press("#np-build", 21.1);
+  setText("#np-build-l", "Creating…", 21.2);
+
+  // ===== 4 Builder: first build =====
+  scene("#s-new", "#s-builder", 21.7); url("aestrodom.org/project/arrow", 21.8);
+  caption(21.8, "STEP 4/8", "Claude builds", "Claude writes the code, builds it, and the live preview appears.");
+  tl.to(cursor, { x: 1700, y: 840, duration: 0.8, ease: "power2.inOut" }, 22.0);
+  const a1 = [[22.3, 22.9], [22.9, 23.5], [23.5, 24.1], [24.1, 24.7], [24.7, 25.3], [25.3, 25.9], [25.9, 26.5], [26.6, 28.2]];
+  a1.forEach(([s, e], i) => act("#a1-" + i, s, e));
+  show("#ft .f0", 23.4, 0.2); show("#ft .f1", 24.0, 0.2); show("#ft .f2", 24.6, 0.2); show("#ft .f3", 25.2, 0.2); show("#ft .f4", 25.8, 0.2); show("#ft .f5", 26.4, 0.2);
+  show("#a1-b", 28.3, 0.25);
+  tl.to("#gsite", { clipPath: "inset(0 0 0% 0)", duration: 1.0, ease: "power3.inOut" }, 28.4);
+  hide("#ph", 28.9, 0.2);
+  tl.from("#g-h", { y: 30, autoAlpha: 0, duration: 0.6 }, 29.0);
+  tl.from("#g-cards .g-card", { y: 30, autoAlpha: 0, stagger: 0.1, duration: 0.5 }, 29.2);
+  hide("#a1-st", 29.3, 0.2);
+  show("#a1-s", 29.4, 0.3);
+  swap("#st-building", "#st-draft", 29.5);
+
+  // ===== 5 Iterate =====
+  caption(30.6, "STEP 5/8", "Iterate", "Want a change? Just ask Claude in plain language.");
+  move("#c-box", 30.8, 0.8, 0.4, 0.35);
+  click(31.7);
+  tl.set("#c-ph", { display: "none" }, 31.8);
+  type("#c-text", "Make the hero more cinematic", 31.9, 1.3);
+  move("#c-send", 33.2, 0.4);
+  click(33.7); press("#c-send", 33.7);
+  setText("#c-text", "", 33.8); tl.set("#c-ph", { display: "inline" }, 33.8);
+  swap("#st-draft", "#st-building", 33.8);
+  tl.to("#msgs", { y: -250, duration: 0.6, ease: "power2.inOut" }, 33.8);
+  show("#m-u2", 33.9, 0.3); show("#m-a2", 34.1, 0.3);
+  act("#a2-0", 34.2, 34.8); act("#a2-1", 34.8, 35.6); act("#a2-2", 35.6, 36.8);
+  tl.to("#f-hero", { backgroundColor: "rgba(251,242,230,.25)", duration: 0.3, yoyo: true, repeat: 3 }, 34.8);
+  tl.to("#g-glow", { opacity: 1, scale: 1.25, duration: 1.0, ease: "power2.out" }, 36.9);
+  tl.to("#g-h", { scale: 1.16, duration: 1.0, ease: "power2.out" }, 36.9);
+  tl.to("#g-cards", { y: 40, duration: 1.0, ease: "power2.out" }, 36.9);
+  show("#a2-s", 37.2, 0.3);
+  swap("#st-building", "#st-draft", 37.2);
+  tl.to(cursor, { x: 1100, y: 560, duration: 0.8, ease: "power2.inOut" }, 37.3);
+
+  // ===== 6 Deploy =====
+  caption(38.6, "STEP 6/8", "Deploy", "Click Deploy — your site goes live on its own domain in seconds.");
+  move("#b-deploy", 38.9, 0.7);
+  click(39.7); press("#b-deploy", 39.7);
+  show("#ov-deploy", 39.9, 0.25);
+  tl.fromTo("#dlg-deploy", { autoAlpha: 0, scale: 0.95 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 39.9);
+  move("#d-go", 40.6, 0.7);
+  click(41.4); press("#d-go", 41.4);
+  tl.set("#d-go-i", { display: "none" }, 41.5); show("#d-go-sp", 41.5, 0.01);
+  show("#d-steps", 41.6, 0.2);
+  tl.to("#d-steps .s", { autoAlpha: 1, duration: 0.2, stagger: 0.6 }, 41.8);
+  show("#d-status", 43.4, 0.3);
+  hide("#d-go", 43.5, 0.1); show("#d-done", 43.6, 0.2);
+  move("#d-done", 44.0, 0.6);
+  click(44.8); press("#d-done", 44.8);
+  hide("#dlg-deploy", 45.0, 0.25); hide("#ov-deploy", 45.0, 0.25);
+  swap("#b-deploy-a", "#b-deploy-b", 45.2);
+  swap("#st-draft", "#st-pub", 45.2);
+  swap("#purl-a", "#purl-b", 45.2);
+  tl.fromTo("#b-launch", { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(3)" }, 45.3);
+
+  // ===== 7 Launch form =====
+  caption(45.9, "STEP 7/8", "Launch Token", "Click “Launch Token”, fill in the token details and connect your wallet.");
+  move("#b-launch", 46.0, 0.7);
+  click(46.9); press("#b-launch", 46.9);
+  show("#ov-launch", 47.1, 0.25);
+  tl.fromTo("#dlg-launch", { autoAlpha: 0, scale: 0.95 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 47.1);
+  show("#l-loading", 47.2, 0.2); hide("#l-loading", 48.0, 0.2); show("#lscroll", 48.1, 0.3);
+  move("#l-logo", 48.5, 0.6, 0.2, 0.5);
+  click(49.2);
+  show("#l-logo-img", 49.6, 0.3); tl.set("#l-logo-a", { display: "none" }, 49.7); show("#l-logo-b", 49.7, 0.2);
+  move("#l-x-box", 50.0, 0.6);
+  click(50.6);
+  tl.set("#l-x-ph", { display: "none" }, 50.7);
+  type("#l-x", "https://x.com/aestrodom_ai", 50.7, 0.9);
+  tl.to("#lscroll", { y: -390, duration: 0.8, ease: "power2.inOut" }, 51.8);
+  move("#l-knob", 52.7, 0.5);
+  const tax = { v: 100 };
+  tl.to(tax, { v: 250, duration: 1.0, ease: "power1.inOut", onUpdate() {
+    const v = Math.round(tax.v / 10) * 10, pct = ((v - 100) / 300) * 100;
+    $("#l-tax").textContent = (v / 100).toFixed(1) + "%"; $("#l-fill").style.width = pct + "%"; $("#l-knob").style.left = pct + "%";
+  } }, 53.3);
+  // the knob travels half the track (1.0% -> 2.5%); drag the cursor with it
+  tl.to(cursor, { x: () => "+=" + $("#l-knob").parentElement.getBoundingClientRect().width * 0.5, duration: 1.0, ease: "power1.inOut" }, 53.3);
+  move("#r-buy", 54.6, 0.6, 0.12, 0.5);
+  click(55.3);
+  hide("#r-launch-i", 55.4, 0.1); show("#r-buy-i", 55.4, 0.1);
+  show("#l-buy", 55.5, 0.3);
+  tl.to("#lscroll", { y: -720, duration: 0.8, ease: "power2.inOut" }, 56.0);
+  move("#l-inj", 56.9, 0.6);
+  click(57.6); press("#l-inj", 57.6);
+  tl.fromTo("#wallet", { autoAlpha: 0, y: -20 }, { autoAlpha: 1, y: 0, duration: 0.3 }, 57.9);
+  move("#w-c-ok", 58.3, 0.6);
+  click(59.1);
+  hide("#wallet", 59.3, 0.25);
+  hide("#l-wa", 59.4, 0.15); show("#l-wb", 59.5, 0.25);
+  setText("#l-rcpt", "0x3F2a8bD41f07c6E2A51d93b0C7f8A6e3e49C1d", 59.5); tl.set("#l-rcpt", { color: "#fbf2e6" }, 59.5);
+
+  // ===== 8 Review + sign =====
+  caption(60.0, "STEP 8/8", "Sign", "Review the costs, then sign the transaction in your own wallet.");
+  move("#l-review", 60.2, 0.6);
+  click(60.9); press("#l-review", 60.9);
+  show("#l-review-sp", 61.0, 0.05);
+  hide("#lscroll", 61.8, 0.2); show("#l-rev", 61.9, 0.3);
+  move("#l-go", 63.0, 0.8);
+  click(64.0); press("#l-go", 64.0);
+  swap("#l-go-a", "#l-go-b", 64.1);
+  cls("#w-connect", "pane", 64.2); cls("#w-tx", "pane on", 64.2);
+  tl.fromTo("#wallet", { autoAlpha: 0, y: -20 }, { autoAlpha: 1, y: 0, duration: 0.3 }, 64.3);
+  move("#w-t-ok", 64.8, 0.7);
+  click(65.8);
+  hide("#wallet", 66.0, 0.25);
+  hide("#l-rev", 66.1, 0.2); show("#l-conf", 66.2, 0.25);
+  hide("#l-conf", 68.2, 0.2); show("#l-ok", 68.3, 0.3);
+  tl.from("#l-ok .okline", { scale: 0.8, duration: 0.4, ease: "back.out(3)" }, 68.3);
+
+  // ===== Token dashboard =====
+  caption(69.0, "DONE", "$ARROW live", "Your token is live on Pons V2 — track its phase and graduation progress.");
+  move("#l-view", 69.2, 0.7);
+  click(70.1); press("#l-view", 70.1);
+  hide("#dlg-launch", 70.3, 0.25); hide("#ov-launch", 70.3, 0.25);
+  hide("#b-launch", 70.5, 0.2);
+  show("#tab-tok", 70.5, 0.3);
+  cls("#tab-prev", "", 70.6); cls("#tab-tok", "on", 70.6);
+  hide("#pframe", 70.6, 0.25); show("#tview", 70.7, 0.35);
+  tl.from(".tdash", { y: 30, duration: 0.5, ease: "power3.out" }, 70.7);
+  tl.to("#t-prog", { width: "2.5%", duration: 1.2, ease: "power2.out" }, 71.4);
+  tl.to(cursor, { x: 1650, y: 830, duration: 1.0, ease: "power2.inOut" }, 71.0);
+
+  // ===== Outro =====
+  hide("#cap", 74.2, 0.4); hide("#win", 74.2, 0.5); tl.set(cursor, { autoAlpha: 0 }, 74.2);
+  tl.fromTo("#outro", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 }, 74.6);
+  tl.from("#outro .big", { y: 60, autoAlpha: 0, duration: 0.7, ease: "power3.out" }, 74.8);
+  tl.from("#outro .flow span", { y: 20, autoAlpha: 0, stagger: 0.15, duration: 0.4 }, 75.4);
+  tl.from("#outro .tag", { y: 20, autoAlpha: 0, duration: 0.4 }, 76.2);
+  tl.from("#outro .disc", { autoAlpha: 0, duration: 0.5 }, 76.6);
+  tl.set({}, {}, D);
+
+  window.__duration = D;
+  window.__seek = (t) => { tl.seek(t, false); };
+  window.__ready = true;
+  if (!/render/.test(location.search)) tl.play(0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+storage
+.env
+.env.*
+!.env.example
+tests
+coverage
+deploy/.env
+marketing

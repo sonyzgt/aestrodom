@@ -1,0 +1,124 @@
+# PRISMATIC production stack (single host).
+#
+#   Internet -> Caddy (80/443, automatic HTTPS)
+#                 ├─ prismatic.com, www          -> app:3000
+#                 ├─ {slug}.prismatic.com        -> site-{slug}:3000     (project containers)
+#                 └─ {slug}.preview.prismatic.com-> preview-{slug}:3000  (preview containers)
+#
+# Project containers are created by the app through the Docker API (via a restricted socket
+# proxy) and attached to the internal `prismatic_projects` network, which has no internet egress.
+# Only the socket proxy touches /var/run/docker.sock; it is never mounted into project containers.
+#
+# Usage:  cp ../.env.example .env  (fill in)  &&  docker compose up -d --build
+name: prismatic
+
+services:
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      PRISMATIC_DOMAIN: ${PRISMATIC_DOMAIN}
+      PRISMATIC_PREVIEW_DOMAIN: ${PRISMATIC_PREVIEW_DOMAIN}
+      CADDY_ASK_SECRET: ${CADDY_ASK_SECRET}
+      SITE_SLUG_LABEL: ${SITE_SLUG_LABEL:-2}
+      PREVIEW_SLUG_LABEL: ${PREVIEW_SLUG_LABEL:-3}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [edge, projects]
+    depends_on: [app]
+
+  app:
+    build:
+      context: ..
+      args:
+        NEXT_PUBLIC_PRIVY_APP_ID: ${NEXT_PUBLIC_PRIVY_APP_ID}
+        NEXT_PUBLIC_ROBINHOOD_RPC_URL: ${NEXT_PUBLIC_ROBINHOOD_RPC_URL}
+        NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ${NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DEPLOYMENT_MODE: production
+      DOCKER_HOST: tcp://docker-proxy:2375
+      STORAGE_PATH: /data
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://prismatic:${POSTGRES_PASSWORD}@postgres:5432/prismatic
+    volumes:
+      - app_data:/data
+    # Resolve external hosts (Claude API, RPC) via DNS-over-HTTPS. Some hosting networks intercept
+    # plain DNS and rewrite crypto domains (e.g. the Robinhood Chain RPC) to block pages.
+    dns: [172.30.53.53]
+    networks:
+      edge:
+        ipv4_address: 172.30.53.10
+      internal: {}
+    depends_on: [postgres, redis, docker-proxy, dns]
+
+  dns:
+    image: adguard/dnsproxy:latest
+    restart: unless-stopped
+    command: ["-l", "0.0.0.0", "-p", "53", "-u", "https://cloudflare-dns.com/dns-query", "-u", "https://dns.google/dns-query", "-b", "1.1.1.1:53", "--cache"]
+    networks:
+      edge:
+        ipv4_address: 172.30.53.53
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: prismatic
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: prismatic
+    volumes: [pg_data:/var/lib/postgresql/data]
+    networks: [internal]
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    networks: [internal]
+
+  # Restricts the Docker API to what Prismatic needs (containers, exec, images, networks).
+  # No volumes, swarm, secrets, plugins or system endpoints.
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:0.2
+    restart: unless-stopped
+    environment:
+      CONTAINERS: 1
+      POST: 1
+      EXEC: 1
+      IMAGES: 1
+      NETWORKS: 1
+      INFO: 1
+      PING: 1
+      VOLUMES: 0
+      SECRETS: 0
+      SERVICES: 0
+      SWARM: 0
+      SYSTEM: 0
+      BUILD: 0
+      AUTH: 0
+      PLUGINS: 0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [internal]
+
+networks:
+  edge:
+    ipam:
+      config:
+        - subnet: 172.30.53.0/24
+  internal:
+    internal: true
+  # Shared by Caddy and project containers only. `internal` = no route to the internet.
+  projects:
+    name: ${PROJECT_NETWORK:-prismatic_projects}
+    internal: true
+
+volumes:
+  caddy_data: {}
+  caddy_config: {}
+  app_data: {}
+  pg_data: {}

@@ -1,0 +1,160 @@
+Aestrodom: From One Sentence to a Live App and Its Own Token
+
+Build anything with AI. Describe it, Claude builds it, and it goes live on its own domain. Then, if you want, give it a token on Robinhood Chain.
+
+
+The problem nobody talks about
+
+Everyone has an app idea. A portfolio for a friend who takes great photos. A menu page for the coffee shop down the street. A leaderboard for the meme group chat. A tiny habit tracker that works exactly the way you think.
+
+Most of these ideas never get built. The idea isn't the hard part. Everything around it is.
+
+You need to know a framework, a language and a styling system. You need a place to host it, a domain, and an HTTPS certificate. You need to fix the build when it breaks at 2 a.m. And if you want a community or an economy around it, you need to go and figure out smart contracts, wallets and launch platforms on top of all that.
+
+That's weeks of work and a stack of tools for something that should take an afternoon. Or a sentence.
+
+Aestrodom exists to remove that gap.
+
+
+What is Aestrodom?
+
+Aestrodom is an AI app builder. You describe the app you want in plain language. A Claude coding agent writes the code, verifies that it builds, and shows you a live preview. When you're happy, one click puts it online at its own address: yourapp.aestrodom.org
+
+It doesn't stop at the website. Aestrodom is built on Robinhood Chain, and every project can launch its own token through Pons V2, signed by your own wallet, in a single flow.
+
+Idea, live app, token. One place, no toolchain.
+
+
+How it works, step by step
+
+1. Describe it
+
+Open Aestrodom and type what you want, the way you'd explain it to a friend:
+
+"Build me a meme leaderboard where people can upvote their favourite memes, with a dark theme and a big trophy for first place."
+
+You don't need any coding experience. Not now, not later.
+
+2. Claude builds it
+
+Behind the scenes, a Claude coding agent gets to work. It doesn't just dump out a wall of code. It works like a careful developer.
+
+It reads only the files that matter for your request, so changes stay focused. It writes and edits files through validated tools, with no shortcuts and no guessing. It runs a real build after making changes. And if the build fails, it reads the error and repairs it automatically, up to three times, before handing anything back to you.
+
+You watch it happen live: which files it touches, what it's doing, and when the build passes.
+
+3. Watch the live preview
+
+Every project builds and runs in its own isolated container. As soon as a build succeeds, the preview updates. You see your real app, not a mockup.
+
+Want changes? Just say so:
+
+"Make the header bigger and add a confetti effect when someone votes."
+
+Claude edits only what your request needs and leaves the rest of your design alone.
+
+4. Deploy in one click
+
+Press Deploy and your app goes live at its own subdomain with automatic HTTPS. Redeploys swap in atomically: if a new build ever fails, your live version stays up. Your visitors never see a broken page.
+
+5. Launch a token (optional)
+
+This is where Aestrodom is different from every other AI builder.
+
+From your project, you can launch a token for your app on Robinhood Chain through the Pons V2 factory.
+
+The current launch terms, including the fee, curve, supply and graduation threshold, are read live from the chain, so you always see real numbers. Your eligibility is checked before the form even appears. The transaction is simulated first, then signed in your own wallet. After launch, the result is read from the real on-chain receipt and verified server-side. You can also choose to launch and make an initial buy in the same step, with slippage protection computed from the curve math.
+
+Your project then gets a token dashboard showing the token address, its bonding curve, its current phase and its graduation progress, refreshed automatically.
+
+
+What can you build?
+
+Aestrodom builds modern single-page apps with React, TypeScript and Tailwind CSS, with animation and icon libraries ready to use. That covers a lot of ground: landing pages for a project, a product or a token; portfolios for photographers, designers and creators; menus and small business pages; dashboards and data displays; small games and interactive toys; tools like calculators, trackers, generators and quizzes; and community apps like leaderboards, voting boards and fan pages.
+
+If you can describe it in a few sentences, there's a good chance Aestrodom can build it.
+
+
+Built with safety first
+
+Putting AI-written code online and connecting it to a blockchain only works if the foundation is solid. Aestrodom was designed around that.
+
+Sealed builds. Every project builds and runs in its own container with CPU and memory limits. No root access, no access to host files, and no installing arbitrary packages from the internet. The toolchain is pinned.
+
+Secrets stay on the server. Platform keys never reach generated apps or the browser.
+
+You sign everything. Aestrodom prepares the token launch transaction, but your wallet signs it. Aestrodom never touches your private keys or seed phrase. Ever.
+
+Checked on-chain. Launch results aren't taken on trust. They're read from the real transaction receipt and verified again on the server.
+
+Your site and your token are independent. They're linked, but editing your website later never touches the token's on-chain data.
+
+
+Why Robinhood Chain?
+
+Aestrodom runs on Robinhood Chain (chain id 4663), an Ethereum L2 that uses ETH for gas. Token launches go through Pons V2, a launch protocol with a bonding-curve model: a token starts on its curve and graduates once it reaches its threshold.
+
+For builders, that means low-cost transactions with familiar ETH gas, a transparent on-chain launch process anyone can verify on the explorer, and a clear path from new project to graduated token.
+
+
+$AESTRODOM
+
+Aestrodom has its own token, $AESTRODOM, live on Robinhood Chain.
+
+Official contract address (CA):
+0x72c11afca4c6a30e01fadce6526cc35d857f4f20
+
+You can always find the official CA on our website, right under "Start Building", with a one-click copy button and a direct link to the Robinhood Chain explorer: aestrodom.org
+
+Stay safe. Only trust the CA shown on aestrodom.org and posted by @aestrodom_ai. Scammers often post fake contract addresses in replies and DMs. Always verify before you buy. Aestrodom will never DM you first or ask for your seed phrase.
+
+
+Who is Aestrodom for?
+
+Creators and communities who want a home on the web for their project, with a token that lives right next to it.
+
+Builders with ideas but no time, who would rather spend an afternoon shipping than a week configuring.
+
+Non-developers who have never written a line of code and don't want to start now.
+
+Developers who want to prototype fast. You can open the code in a read-only view at any time to see exactly what was built.
+
+
+Frequently asked questions
+
+Do I need coding experience?
+No. Describe what you want and Claude makes the change. You can look at the code in a read-only view if you're curious.
+
+Where is my app hosted?
+Each deployment runs in its own container and is served at your-project.aestrodom.org with automatic HTTPS.
+
+Do I have to launch a token?
+No. The token is completely optional. Many projects are just apps, and that's fine.
+
+Who controls the token launch?
+You do. Aestrodom prepares the transaction from the current Pons V2 configuration, and your own wallet signs it.
+
+Will launching a token change my website?
+No. They're linked but independent. Updating your site later never touches the token's on-chain data.
+
+How do I sign in?
+With email, a wallet, Google, X and more.
+
+
+Get started
+
+Your next idea is one sentence away.
+
+1. Go to aestrodom.org
+2. Click Start Building
+3. Describe your app
+4. Watch it come to life and go live
+
+Describe it. Claude builds it. You launch it.
+
+Website: aestrodom.org
+X / Twitter: @aestrodom_ai
+$AESTRODOM CA: 0x72c11afca4c6a30e01fadce6526cc35d857f4f20
+
+
+Disclaimer: This article is for informational purposes only and is not financial advice. Crypto assets are volatile and you can lose money. Always do your own research and only use official links.

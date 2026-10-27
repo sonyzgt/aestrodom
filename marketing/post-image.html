@@ -1,0 +1,117 @@
+<!doctype html>
+<!-- Source for marketing/aestrodom-post*.png (X post image, 1600×900). Add ?light for the white version,
+     ?ca=0x… to print the token contract address in the pill. -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>aestrodom — X post (1600×900)</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root { --bg: #050505; --fg: #ffffff; --muted: #a1a1aa; --subtle: #52525b; --line: #1c1c20; --card: #0c0c0e; --f1: #3f3f46; --f2: #ffffff; --f3: #a1a1aa; --glow: rgba(255,255,255,.10); }
+  .light { --bg: #ffffff; --fg: #000000; --muted: #4b5563; --subtle: #9ca3af; --line: #e5e7eb; --card: #f9fafb; --f1: #9ca3af; --f2: #000000; --f3: #4b5563; --glow: rgba(0,0,0,.06); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; overflow: hidden; }
+  body { position: relative; background: var(--bg); color: var(--fg); font-family: "Plus Jakarta Sans", sans-serif; -webkit-font-smoothing: antialiased; }
+
+  .grid { position: absolute; inset: 0;
+    background-image: linear-gradient(to right, var(--line) 1px, transparent 1px), linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 56px 56px; background-position: -1px -1px;
+    -webkit-mask: radial-gradient(ellipse 70% 80% at 78% 50%, #000 20%, transparent 75%); mask: radial-gradient(ellipse 70% 80% at 78% 50%, #000 20%, transparent 75%); }
+  .glow { position: absolute; right: 120px; top: 50%; width: 760px; height: 760px; transform: translateY(-50%); border-radius: 50%;
+    background: radial-gradient(circle, var(--glow) 0%, transparent 62%); }
+
+  header { position: absolute; left: 96px; right: 96px; top: 72px; display: flex; justify-content: space-between; align-items: center; }
+  .brand { display: flex; align-items: center; gap: 16px; font-family: Orbitron, sans-serif; font-weight: 900; font-size: 28px; letter-spacing: .16em; }
+  .brand svg { width: 40px; height: 40px; }
+  .live { display: flex; align-items: center; gap: 12px; padding: 12px 22px; border: 1px solid var(--subtle); border-radius: 999px;
+    font-size: 15px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; }
+  .live i { width: 9px; height: 9px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 5px rgba(34,197,94,.18); }
+
+  .content { position: absolute; left: 96px; top: 210px; width: 820px; }
+  .eyebrow { display: flex; align-items: center; gap: 14px; font-size: 16px; font-weight: 600; letter-spacing: .32em; text-transform: uppercase; color: var(--muted); }
+  .eyebrow::before { content: ""; width: 40px; height: 1px; background: var(--fg); }
+  h1 { margin-top: 28px; font-family: Orbitron, sans-serif; font-weight: 900; font-size: 78px; line-height: 1.08; letter-spacing: .02em; }
+  h1 em { font-style: normal; color: var(--muted); }
+
+  .prompt { margin-top: 44px; display: flex; align-items: center; gap: 16px; width: 700px; padding: 22px 26px; background: var(--card);
+    border: 1px solid var(--line); border-radius: 16px; font-family: "JetBrains Mono", monospace; font-size: 21px; color: var(--muted); }
+  .prompt b { color: var(--fg); font-weight: 500; }
+  .prompt .caret { width: 11px; height: 26px; background: var(--fg); margin-left: -8px; }
+  .prompt .send { margin-left: auto; width: 42px; height: 42px; border-radius: 10px; background: var(--fg); color: var(--bg);
+    display: grid; place-items: center; font-family: "Plus Jakarta Sans"; font-size: 22px; font-weight: 700; }
+
+  .steps { position: absolute; left: 96px; bottom: 78px; display: flex; gap: 0; }
+  .step { display: flex; align-items: center; gap: 14px; font-size: 17px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; }
+  .step span { font-family: Orbitron, sans-serif; font-size: 14px; color: var(--subtle); letter-spacing: .1em; }
+  .step + .step::before { content: ""; width: 56px; height: 1px; background: var(--subtle); margin: 0 22px; }
+  .step.last { color: var(--fg); }
+
+  .orbit { position: absolute; right: 150px; top: 50%; width: 560px; height: 560px; transform: translateY(-46%); }
+  .orbit svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+  .ca { position: absolute; right: 96px; bottom: 66px; display: flex; align-items: center; gap: 16px; padding: 16px 24px;
+    border: 1px solid var(--fg); border-radius: 14px; font-family: "JetBrains Mono", monospace; font-size: 18px; }
+  .ca .t { font-family: Orbitron, sans-serif; font-weight: 700; font-size: 18px; letter-spacing: .12em; }
+  .ca .sep { width: 1px; height: 22px; background: var(--subtle); }
+  .ca .v { color: var(--muted); }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="glow"></div>
+
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 64 64"><g stroke-linejoin="round" stroke-width="2.5">
+        <path d="M32 5 L33 39 L4 57 Z" fill="var(--f1)" stroke="var(--f1)" />
+        <path d="M32 5 L60 57 L33 39 Z" fill="var(--f2)" stroke="var(--f2)" />
+        <path d="M4 57 L33 39 L60 57 Z" fill="var(--f3)" stroke="var(--f3)" />
+      </g></svg>
+      AESTRODOM
+    </div>
+    <div class="live"><i></i>$AESTRODOM is live</div>
+  </header>
+
+  <div class="content">
+    <div class="eyebrow">AI app builder · Robinhood Chain</div>
+    <h1>Idea to live app.<br /><em>App to token.</em></h1>
+    <div class="prompt">
+      <span>›</span><b>build me a meme leaderboard with a token</b><span class="caret"></span>
+      <span class="send">↑</span>
+    </div>
+  </div>
+
+  <div class="orbit">
+    <svg viewBox="0 0 400 400" fill="none">
+      <circle cx="200" cy="200" r="196" stroke="var(--subtle)" stroke-width="1" opacity=".6" />
+      <circle cx="200" cy="200" r="150" stroke="var(--subtle)" stroke-width="1" stroke-dasharray="2 7" />
+      <circle cx="200" cy="200" r="236" stroke="var(--line)" stroke-width="1" />
+      <ellipse cx="200" cy="200" rx="200" ry="64" stroke="var(--fg)" stroke-width="1" opacity=".6" transform="rotate(-18 200 200)" />
+      <ellipse cx="200" cy="200" rx="64" ry="215" stroke="var(--subtle)" stroke-width="1" opacity=".7" transform="rotate(28 200 200)" />
+      <circle cx="355" cy="162" r="6" fill="var(--fg)" transform="rotate(-18 200 200)" />
+      <circle cx="200" cy="-15" r="4" fill="var(--muted)" transform="rotate(28 200 200)" />
+      <g transform="translate(85 82) scale(3.6)" stroke-linejoin="round" stroke-width="1.4">
+        <path d="M32 5 L33 39 L4 57 Z" fill="var(--f1)" stroke="var(--f1)" />
+        <path d="M32 5 L60 57 L33 39 Z" fill="var(--f2)" stroke="var(--f2)" />
+        <path d="M4 57 L33 39 L60 57 Z" fill="var(--f3)" stroke="var(--f3)" />
+      </g>
+    </svg>
+  </div>
+
+  <div class="steps">
+    <div class="step"><span>01</span>Describe</div>
+    <div class="step"><span>02</span>Build</div>
+    <div class="step"><span>03</span>Deploy</div>
+    <div class="step last"><span>04</span>Launch</div>
+  </div>
+
+  <div class="ca"><span class="t">CA</span><span class="sep"></span><span class="v" id="ca">in the post ↓</span><span class="sep"></span><span>aestrodom.org</span></div>
+
+  <script>
+    const q = new URLSearchParams(location.search);
+    if (q.has("light")) document.documentElement.classList.add("light");
+    const ca = q.get("ca");
+    if (ca) document.getElementById("ca").textContent = ca.length > 20 ? ca.slice(0, 8) + "…" + ca.slice(-6) : ca;
+  </script>
+</body>
+</html>

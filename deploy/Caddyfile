@@ -1,0 +1,53 @@
+{
+	# Certificates for project subdomains are issued on demand, but only for hosts the
+	# Prismatic app confirms are live (prevents certificate abuse via the wildcard record).
+	on_demand_tls {
+		ask http://app:3000/api/internal/domain-check?secret={$CADDY_ASK_SECRET}
+	}
+}
+
+# Main application
+{$PRISMATIC_DOMAIN}, www.{$PRISMATIC_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy app:3000 {
+		flush_interval -1
+	}
+}
+
+# Previews: arrow.preview.prismatic.com -> container alias preview-arrow
+# Caddy numbers host labels from the right (com=0). SITE_SLUG_LABEL = labels in PRISMATIC_DOMAIN;
+# PREVIEW_SLUG_LABEL = labels in PRISMATIC_PREVIEW_DOMAIN. prismatic.com -> 2 and 3.
+*.{$PRISMATIC_PREVIEW_DOMAIN} {
+	tls {
+		on_demand
+	}
+	encode zstd gzip
+	header {
+		X-Robots-Tag "noindex, nofollow"
+		-Server
+	}
+	reverse_proxy preview-{labels.{$PREVIEW_SLUG_LABEL}}:3000 {
+		fail_duration 5s
+	}
+	handle_errors {
+		respond "Preview not running" 502
+	}
+}
+
+# Deployed projects: arrow.prismatic.com -> container alias site-arrow
+*.{$PRISMATIC_DOMAIN} {
+	tls {
+		on_demand
+	}
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	reverse_proxy site-{labels.{$SITE_SLUG_LABEL}}:3000 {
+		fail_duration 5s
+	}
+	handle_errors {
+		respond "This project is not deployed." 404
+	}
+}

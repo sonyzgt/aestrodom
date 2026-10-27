@@ -1,0 +1,69 @@
+<!doctype html>
+<!-- Source for marketing/aestrodom-twitter-banner*.png (X header, 1500×500). Add ?dark for the inverted version.
+     X puts the avatar over the bottom-left corner and crops top/bottom on mobile, so content stays in the middle band. -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>aestrodom — X header (1500×500)</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800;900&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root { --bg: #ffffff; --fg: #000000; --muted: #4b5563; --subtle: #9ca3af; --line: #e5e7eb; --f1: #9ca3af; --f2: #000000; --f3: #4b5563; }
+  .dark { --bg: #050505; --fg: #ffffff; --muted: #a1a1aa; --subtle: #52525b; --line: #1f1f23; --f1: #3f3f46; --f2: #ffffff; --f3: #a1a1aa; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1500px; height: 500px; overflow: hidden; }
+  body { position: relative; background: var(--bg); color: var(--fg); font-family: "Plus Jakarta Sans", sans-serif; -webkit-font-smoothing: antialiased; }
+
+  /* Faint grid that fades out toward the text side. */
+  .grid { position: absolute; inset: 0;
+    background-image: linear-gradient(to right, var(--line) 1px, transparent 1px), linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 50px 50px; background-position: -1px -1px;
+    -webkit-mask: linear-gradient(to right, transparent 25%, #000 75%); mask: linear-gradient(to right, transparent 25%, #000 75%); }
+
+  .content { position: absolute; left: 120px; top: 118px; }
+  .eyebrow { display: flex; align-items: center; gap: 14px; font-size: 14px; font-weight: 600; letter-spacing: .32em; text-transform: uppercase; color: var(--muted); }
+  .eyebrow::before { content: ""; width: 36px; height: 1px; background: var(--fg); }
+  h1 { margin-top: 26px; display: flex; align-items: flex-start; font-family: Orbitron, sans-serif; font-weight: 900; font-size: 88px; line-height: 1; letter-spacing: .14em; }
+  h1 sup { font-size: 38px; margin-left: -4px; margin-top: -6px; }
+  .tag { margin-top: 26px; font-family: Orbitron, sans-serif; font-weight: 500; font-size: 22px; letter-spacing: .3em; text-transform: uppercase; }
+  .sub { margin-top: 18px; font-size: 18px; font-weight: 400; color: var(--muted); letter-spacing: .01em; }
+
+  /* The mark with orbit rings, on the right. */
+  .orbit { position: absolute; right: 150px; top: 50%; width: 400px; height: 400px; transform: translateY(-50%); }
+  .orbit svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+  .meta { position: absolute; right: 56px; bottom: 44px; display: flex; gap: 28px; font-size: 13px; font-weight: 600; letter-spacing: .28em; text-transform: uppercase; color: var(--muted); }
+  .meta b { color: var(--fg); font-weight: 600; }
+  .coord { position: absolute; right: 56px; top: 44px; font-size: 12px; font-weight: 500; letter-spacing: .28em; text-transform: uppercase; color: var(--subtle); }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+
+  <div class="content">
+    <div class="eyebrow">AI app builder</div>
+    <h1>AESTRODOM<sup>˚</sup></h1>
+    <div class="tag">Build anything with AI</div>
+    <p class="sub">Describe it. Claude builds it. Live on its own domain.</p>
+  </div>
+
+  <div class="orbit">
+    <svg viewBox="0 0 400 400" fill="none">
+      <circle cx="200" cy="200" r="196" stroke="var(--line)" stroke-width="1.5" />
+      <circle cx="200" cy="200" r="150" stroke="var(--subtle)" stroke-width="1" stroke-dasharray="2 7" />
+      <ellipse cx="200" cy="200" rx="196" ry="62" stroke="var(--fg)" stroke-width="1" opacity=".55" transform="rotate(-18 200 200)" />
+      <circle cx="350" cy="160" r="5" fill="var(--fg)" transform="rotate(-18 200 200)" />
+      <!-- Mark: viewBox 64 scaled ×3.6 and centred. -->
+      <g transform="translate(85 82) scale(3.6)" stroke-linejoin="round" stroke-width="1.4">
+        <path d="M32 5 L33 39 L4 57 Z" fill="var(--f1)" stroke="var(--f1)" />
+        <path d="M32 5 L60 57 L33 39 Z" fill="var(--f2)" stroke="var(--f2)" />
+        <path d="M4 57 L33 39 L60 57 Z" fill="var(--f3)" stroke="var(--f3)" />
+      </g>
+    </svg>
+  </div>
+
+  <div class="coord">Pons V2 · Robinhood Chain</div>
+  <div class="meta"><span>Prompt</span><span>Build</span><span>Deploy</span><b>aestrodom.org</b></div>
+
+  <script>if (location.search.includes("dark")) document.documentElement.classList.add("dark");</script>
+</body>
+</html>

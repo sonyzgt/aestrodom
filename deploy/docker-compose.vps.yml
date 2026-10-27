@@ -1,0 +1,21 @@
+# Override for a shared host whose own Caddy already owns ports 80/443 (other sites live there too).
+#
+#   Internet -> host Caddy (TLS for aestrodom.org, *.aestrodom.org, *.preview.aestrodom.org)
+#            -> 127.0.0.1:8480 -> this stack's Caddy (plain HTTP, host-based routing, see Caddyfile.internal)
+#
+# The app is also published on 127.0.0.1:3500 so the host Caddy can call the on-demand TLS ask endpoint.
+#
+# Usage:  docker compose -f docker-compose.yml -f docker-compose.vps.yml up -d --build
+services:
+  caddy:
+    ports: !override
+      - "127.0.0.1:8480:80"
+    volumes: !override
+      - ./Caddyfile.internal:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: !override [edge, projects]
+
+  app:
+    ports:
+      - "127.0.0.1:3500:3000"

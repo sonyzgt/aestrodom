@@ -1,0 +1,28 @@
+{
+  "name": "aestrodom-demo-video",
+  "private": true,
+  "description": "Aestrodom product demo video, built with Remotion.",
+  "scripts": {
+    "audio": "node make-audio.mjs",
+    "studio": "remotion studio",
+    "render": "remotion render AestrodomDemo out/raw.mp4 && remotion ffmpeg -y -v error -i out/raw.mp4 -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=11 -ar 48000 -c:a aac -b:a 192k out/aestrodom-demo.mp4",
+    "typecheck": "tsc --noEmit",
+    "render:promo": "remotion render AestrodomPromo out/promo-raw.mp4 && remotion ffmpeg -y -v error -i out/promo-raw.mp4 -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=11 -ar 48000 -c:a aac -b:a 192k ../aestrodom-promo.mp4",
+    "render:topup": "remotion render AestrodomTopup out/topup-raw.mp4 && remotion ffmpeg -y -v error -i out/topup-raw.mp4 -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=11 -ar 48000 -c:a aac -b:a 192k ../aestrodom-topup-tutorial.mp4",
+    "render:skills": "remotion render AestrodomSkills out/skills-raw.mp4 && remotion ffmpeg -y -v error -i out/skills-raw.mp4 -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=11 -ar 48000 -c:a aac -b:a 192k ../aestrodom-skills-tutorial.mp4",
+    "render:battle": "remotion render AestrodomBattle out/battle-raw.mp4 && remotion ffmpeg -y -v error -i out/battle-raw.mp4 -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=11 -ar 48000 -c:a aac -b:a 192k ../aestrodom-battleground-vote.mp4",
+    "render:pass": "remotion render AestrodomPass out/pass-raw.mp4 && remotion ffmpeg -y -v error -i out/pass-raw.mp4 -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=11 -ar 48000 -c:a aac -b:a 192k ../aestrodom-pass.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.536",
+    "@remotion/google-fonts": "4.0.536",
+    "@remotion/transitions": "4.0.536",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "4.0.536"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^5.9.3"
+  }
+}

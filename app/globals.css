@@ -1,0 +1,398 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * Aestrodom design tokens: pure white paper, black ink, gray accents (the landing page's look).
+ * Headlines in Orbitron caps, UI in Plus Jakarta Sans. The palette names below are kept for existing
+ * class names, but every hue resolves to ink or gray; only success/danger/warning keep a muted color
+ * because they carry meaning. "light" (white) is the default; "dark" is the same system inverted.
+ */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  --c-red: #000000;
+  --c-red-t: #f3f4f6;
+  --c-coral: #111827;
+  --c-coral-t: #f3f4f6;
+  --c-orange: #1f2937;
+  --c-orange-t: #f3f4f6;
+  --c-yellow: #000000;
+  --c-yellow-t: #f3f4f6;
+  --c-lime: #374151;
+  --c-lime-t: #f3f4f6;
+  --c-green: #000000;
+  --c-green-t: #f3f4f6;
+  --c-cyan: #1f2937;
+  --c-cyan-t: #f3f4f6;
+  --c-sky: #111827;
+  --c-sky-t: #f3f4f6;
+  --c-blue: #000000;
+  --c-blue-t: #f3f4f6;
+  --c-indigo: #374151;
+  --c-indigo-t: #f3f4f6;
+  --c-purple: #111827;
+  --c-purple-t: #f3f4f6;
+  --c-magenta: #1f2937;
+  --c-magenta-t: #f3f4f6;
+  --c-pink: #000000;
+  --c-pink-t: #f3f4f6;
+
+  --ink: #d1d5db;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --elevated: #f3f4f6;
+  --inset: #f9fafb;
+  --border: #e5e7eb;
+  --border-strong: #9ca3af;
+  --fg: #000000;
+  --muted: #4b5563;
+  --subtle: #6b7280;
+  --accent: #000000;
+  --accent-strong: #262626;
+  --accent-blue: #000000;
+  --success: #15803d;
+  --warning: #b45309;
+  --danger: #dc2626;
+  --overlay: rgba(0, 0, 0, 0.2);
+  --sheen: transparent;
+  --primary: linear-gradient(#000, #000);
+  --on-primary: #ffffff;
+  --primary-edge: #000000;
+  --dot: #e5e7eb;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --c-red: #ffffff;
+  --c-red-t: #1a1a1a;
+  --c-coral: #f3f4f6;
+  --c-coral-t: #1a1a1a;
+  --c-orange: #e5e7eb;
+  --c-orange-t: #1a1a1a;
+  --c-yellow: #ffffff;
+  --c-yellow-t: #1a1a1a;
+  --c-lime: #d1d5db;
+  --c-lime-t: #1a1a1a;
+  --c-green: #ffffff;
+  --c-green-t: #1a1a1a;
+  --c-cyan: #e5e7eb;
+  --c-cyan-t: #1a1a1a;
+  --c-sky: #f3f4f6;
+  --c-sky-t: #1a1a1a;
+  --c-blue: #ffffff;
+  --c-blue-t: #1a1a1a;
+  --c-indigo: #d1d5db;
+  --c-indigo-t: #1a1a1a;
+  --c-purple: #f3f4f6;
+  --c-purple-t: #1a1a1a;
+  --c-magenta: #e5e7eb;
+  --c-magenta-t: #1a1a1a;
+  --c-pink: #ffffff;
+  --c-pink-t: #1a1a1a;
+
+  --ink: #404040;
+  --bg: #000000;
+  --surface: #000000;
+  --elevated: #171717;
+  --inset: #0a0a0a;
+  --border: #262626;
+  --border-strong: #525252;
+  --fg: #ffffff;
+  --muted: #a3a3a3;
+  --subtle: #8a8a8a;
+  --accent: #ffffff;
+  --accent-strong: #d4d4d4;
+  --accent-blue: #ffffff;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --overlay: rgba(0, 0, 0, 0.6);
+  --sheen: transparent;
+  --primary: linear-gradient(#fff, #fff);
+  --on-primary: #000000;
+  --primary-edge: #ffffff;
+  --dot: #262626;
+}
+
+@theme inline {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-display: var(--font-orbitron), ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: var(--ink);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-inset: var(--inset);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-blue: var(--accent-blue);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-overlay: var(--overlay);
+  --color-primary-edge: var(--primary-edge);
+
+  --color-red: var(--c-red);
+  --color-red-t: var(--c-red-t);
+  --color-coral: var(--c-coral);
+  --color-coral-t: var(--c-coral-t);
+  --color-orange: var(--c-orange);
+  --color-orange-t: var(--c-orange-t);
+  --color-yellow: var(--c-yellow);
+  --color-yellow-t: var(--c-yellow-t);
+  --color-lime: var(--c-lime);
+  --color-lime-t: var(--c-lime-t);
+  --color-green: var(--c-green);
+  --color-green-t: var(--c-green-t);
+  --color-cyan: var(--c-cyan);
+  --color-cyan-t: var(--c-cyan-t);
+  --color-sky: var(--c-sky);
+  --color-sky-t: var(--c-sky-t);
+  --color-blue: var(--c-blue);
+  --color-blue-t: var(--c-blue-t);
+  --color-indigo: var(--c-indigo);
+  --color-indigo-t: var(--c-indigo-t);
+  --color-purple: var(--c-purple);
+  --color-purple-t: var(--c-purple-t);
+  --color-magenta: var(--c-magenta);
+  --color-magenta-t: var(--c-magenta-t);
+  --color-pink: var(--c-pink);
+  --color-pink-t: var(--c-pink-t);
+}
+
+/* Small, crisp corners (pills/dots keep rounded-full). */
+@theme {
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 6px;
+  --radius-xl: 6px;
+  --radius-2xl: 6px;
+  --radius-3xl: 6px;
+}
+
+html {
+  color: var(--fg);
+  background-color: var(--bg);
+}
+
+body {
+  color: var(--fg);
+  background: var(--bg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Headlines: Orbitron caps, widely tracked. */
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-stretch: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+}
+
+.text-heading {
+  color: var(--fg);
+}
+/* Second headline line, or a highlighted word: the action red. */
+.text-heading-alt,
+.text-heading .text-heading-alt {
+  color: var(--accent);
+}
+
+/* Section label: small gray caps, widely tracked. */
+.shimmer {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--subtle);
+}
+
+/* Flat card: a step above the page, hairline border. */
+.panel {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+}
+
+/* Primary action: solid ink, paper text, tracked caps; softer on hover, pressed on click. */
+.btn-primary {
+  background-color: var(--accent);
+  color: var(--on-primary);
+  border: 1px solid var(--accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition: background-color 0.15s, border-color 0.15s, transform 0.1s;
+}
+.btn-primary:hover {
+  background-color: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+/* Dot grid for decorative surfaces. */
+.grid-squares {
+  background-image: radial-gradient(circle, var(--dot) 1.2px, transparent 1.6px);
+  background-size: 18px 18px;
+}
+
+.grid-fade {
+  background-image:
+    linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black 20%, transparent 70%);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-primary);
+}
+
+:focus-visible {
+  outline-color: var(--accent);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Underlined link; the underline turns to ink on hover. */
+.link {
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 5px;
+  text-decoration-thickness: 2px;
+  transition: text-decoration-color 0.15s;
+}
+.link:hover {
+  text-decoration-color: var(--accent);
+}
+
+/* Long-form copy. */
+.prose-serif {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 68ch;
+}
+.prose-serif strong,
+.prose-serif code {
+  color: var(--fg);
+  font-weight: 600;
+}
+.prose-serif code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  padding: 0.1em 0.35em;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Endless ticker: the list is rendered twice, so sliding by half loops seamlessly. */
+.marquee {
+  animation: marquee 40s linear infinite;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Card that lifts on hover while its icon tile does a springy hop. Uses `translate`, not `transform`,
+ * so it never fights the GSAP reveal tweens that leave an inline transform behind. */
+.pop-card {
+  transition:
+    translate 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.2s;
+}
+.pop-card:hover {
+  translate: 0 -5px;
+  border-color: var(--border-strong);
+}
+.pop-card:hover .pop-icon {
+  animation: icon-hop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes icon-hop {
+  0% { transform: none; }
+  30% { transform: translateY(-7px) rotate(-14deg) scale(1.12); }
+  60% { transform: translateY(0) rotate(7deg) scale(0.96); }
+  100% { transform: none; }
+}
+
+/*
+ * Landing page: pure white, black ink, Orbitron headlines over Plus Jakarta Sans. Sizes scale with the
+ * viewport through clamp(); everything is scoped to .landing so the app keeps its own theme.
+ */
+.landing {
+  --pad-x: clamp(1.25rem, 4.5vw, 5rem);
+  --pad-y: clamp(1rem, 3vh, 4rem);
+  --header-pt: clamp(1.25rem, 2.5vh, 2.5rem);
+  --gap-nav: clamp(1rem, 2.2vw, 2.25rem);
+  --logo: clamp(1.35rem, 1.2vw + 0.9rem, 2.1rem);
+  --logo-deg: clamp(0.65rem, 0.4vw + 0.45rem, 0.9rem);
+  --nav: clamp(0.7rem, 0.35vw + 0.5rem, 0.875rem);
+  --headline: clamp(2.5rem, 4.5vw + 0.75rem, 5.25rem);
+  --body: clamp(0.8125rem, 0.35vw + 0.55rem, 0.9rem);
+  --micro: clamp(0.625rem, 0.25vw + 0.45rem, 0.7rem);
+  --btn-px: clamp(1.15rem, 1.4vw, 1.75rem);
+  --btn-py: clamp(0.6rem, 0.9vh, 0.85rem);
+  --btn-gap: clamp(0.75rem, 1vw, 1.1rem);
+  --feature-pad: clamp(1rem, 1.5vw, 1.75rem);
+  --feature-min: clamp(13rem, 18vw, 20rem);
+  --globe: clamp(2.25rem, 2.5vw + 1rem, 3.25rem);
+  --checker-w: clamp(2.75rem, 4.5vw, 6.5rem);
+  --checker-h: clamp(1.35rem, 2.2vw, 3rem);
+  --corner: clamp(0.65rem, 0.4vw + 0.4rem, 0.95rem);
+  --icon: clamp(1rem, 0.6vw + 0.7rem, 1.35rem);
+  --drawer-pad: clamp(1.25rem, 2.5vw, 2.25rem);
+  --drawer-max: clamp(18rem, 28vw, 28rem);
+  --section-gap: clamp(0.75rem, 1.5vh, 1.5rem);
+  --main-py: clamp(1.25rem, 4vh, 4rem);
+
+  color-scheme: light;
+  font-stretch: normal;
+}
+.landing ::selection {
+  background: #000;
+  color: #fff;
+}
+.font-orbitron {
+  font-family: var(--font-orbitron), sans-serif;
+  font-stretch: normal;
+}
+.font-jakarta {
+  font-family: var(--font-jakarta), sans-serif;
+  font-stretch: normal;
+}

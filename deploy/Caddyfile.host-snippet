@@ -1,0 +1,21 @@
+# Append to the HOST Caddyfile (/etc/caddy/Caddyfile) on a shared server. Replace ASK_SECRET with
+# CADDY_ASK_SECRET from deploy/.env. The global block must be the first block in the file.
+#
+# {
+# 	on_demand_tls {
+# 		ask http://127.0.0.1:3500/api/internal/domain-check?secret=ASK_SECRET
+# 	}
+# }
+
+aestrodom.org, www.aestrodom.org {
+	reverse_proxy 127.0.0.1:8480 {
+		flush_interval -1
+	}
+}
+
+*.aestrodom.org, *.preview.aestrodom.org {
+	tls {
+		on_demand
+	}
+	reverse_proxy 127.0.0.1:8480
+}

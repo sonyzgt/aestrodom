@@ -1,0 +1,357 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Plan {
+  FREE
+  PRO
+}
+
+enum ProjectStatus {
+  CREATING
+  READY
+  BUILDING
+  DEPLOYED
+  ERROR
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum DeploymentKind {
+  PREVIEW
+  PRODUCTION
+}
+
+enum DeploymentStatus {
+  PENDING
+  BUILDING
+  RUNNING
+  STOPPED
+  FAILED
+}
+
+enum CreditOrderStatus {
+  PENDING
+  PAID
+}
+
+enum LaunchStatus {
+  PENDING
+  LAUNCHED
+  FAILED
+}
+
+enum LogSource {
+  AI
+  BUILD
+  RUNTIME
+  DEPLOY
+  TOKEN
+}
+
+enum LogLevel {
+  INFO
+  SUCCESS
+  WARN
+  ERROR
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String?
+  // Privy user DID (did:privy:...). Primary login identity.
+  privyId       String?  @unique
+  // Verified via Privy identity token when available.
+  email         String?  @unique
+  walletAddress String?
+  // Legacy email/password accounts only; Privy users have none.
+  passwordHash  String?
+  role          Role     @default(USER)
+  plan          Plan     @default(FREE)
+  disabled      Boolean  @default(false)
+  // Prepaid AI credits (bought with $AESTRODOM). May dip below zero by the cost of the last run.
+  credits       Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  projects          Project[]
+  usage             Usage[]
+  ponsLaunches      PonsLaunch[]
+  apiKeys           ApiKey[]
+  creditOrders      CreditOrder[]
+  creditLedger      CreditLedger[]
+  votes             ProjectVote[]
+  sponsoredLaunches SponsoredLaunch[]
+}
+
+/// Personal API key (aestro_sk_...). Only the SHA-256 hash is stored; the key is shown once.
+model ApiKey {
+  id         String    @id @default(cuid())
+  userId     String
+  name       String
+  prefix     String // first characters, for display
+  hash       String    @unique
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// A credit top-up in USD, paid with an ERC-20 transfer of $AESTRODOM to the treasury at the price quoted
+/// when the order was created. `amount` (wei, decimal string) carries random dust so a payment maps to one order.
+model CreditOrder {
+  id        String            @id @default(cuid())
+  userId    String
+  credits   Int
+  usdCents  Int               @default(0)
+  // USD per whole $AESTRODOM at quote time (decimal string).
+  tokenUsd  String?
+  amount    String
+  status    CreditOrderStatus @default(PENDING)
+  txHash    String?           @unique
+  payer     String?
+  expiresAt DateTime
+  paidAt    DateTime?
+  createdAt DateTime          @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([amount, status])
+}
+
+/// Every change to a user's credit balance.
+model CreditLedger {
+  id           String   @id @default(cuid())
+  userId       String
+  delta        Int
+  balanceAfter Int
+  reason       String // "purchase" | "ai.generate" | "admin"
+  refId        String?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Project {
+  id            String        @id @default(cuid())
+  userId        String
+  name          String
+  slug          String        @unique
+  description   String        @default("")
+  framework     String        @default("vite-react")
+  status        ProjectStatus @default(CREATING)
+  previewUrl    String?
+  deploymentUrl String?
+  logoUrl       String?
+  // Shown on the public Battleground page while deployed (owner can opt out).
+  listed        Boolean       @default(true)
+  // The prompt the project was created from; consumed by the first agent run.
+  initialPrompt String?
+  // Optional skills (lib/skills.ts) whose guidance is added to every agent run.
+  skills        String[]      @default([])
+  sizeBytes     Int           @default(0)
+  lastBuildOk   Boolean?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  files        ProjectFile[]
+  conversation Conversation?
+  deployments  Deployment[]
+  domains      ProjectDomain[]
+  ponsLaunches PonsLaunch[]
+  usage        Usage[]
+  logs         ProjectLog[]
+  votes        ProjectVote[]
+
+  @@index([userId, updatedAt])
+}
+
+/// One upvote per user per project on the public Battleground.
+model ProjectVote {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([createdAt])
+  @@index([userId])
+}
+
+model ProjectFile {
+  id        String   @id @default(cuid())
+  projectId String
+  path      String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, path])
+}
+
+model Conversation {
+  id              String    @id @default(cuid())
+  projectId       String    @unique
+  // Rolling summary of messages that have been compressed out of the live window.
+  summary         String    @default("")
+  // Messages created at or before this time are represented by `summary`.
+  summarizedUntil DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project  Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  messages Message[]
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  conversationId String
+  role           MessageRole
+  content        String
+  // Tool/action trace, build result, file operations etc.
+  metadata       Json?
+  createdAt      DateTime    @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+}
+
+model Deployment {
+  id            String           @id @default(cuid())
+  projectId     String
+  kind          DeploymentKind
+  status        DeploymentStatus @default(PENDING)
+  containerName String?
+  hostPort      Int?
+  url           String?
+  error         String?
+  startedAt     DateTime?
+  stoppedAt     DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, kind, createdAt])
+}
+
+model ProjectDomain {
+  id        String   @id @default(cuid())
+  projectId String
+  domain    String   @unique
+  primary   Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Usage {
+  id               String   @id @default(cuid())
+  userId           String
+  projectId        String?
+  kind             String // "ai.generate" | "ai.summarize" ...
+  model            String?
+  inputTokens      Int      @default(0)
+  outputTokens     Int      @default(0)
+  cacheReadTokens  Int      @default(0)
+  // Part of inputTokens written to the prompt cache (billed above plain input).
+  cacheWriteTokens Int      @default(0)
+  durationMs       Int      @default(0)
+  success          Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+}
+
+model PonsLaunch {
+  id                  String       @id @default(cuid())
+  projectId           String
+  userId              String
+  tokenAddress        String?      @unique
+  curveAddress        String?
+  transactionHash     String       @unique
+  chainId             Int
+  pairToken           String
+  launchConfigId      Int
+  creatorFeeRecipient String
+  creatorTaxBps       Int
+  buybackEnabled      Boolean
+  deployer            String?
+  graduationThreshold String?
+  name                String
+  symbol              String
+  // On-chain logo (e.g. ipfs://CID), copied from getTokenInfo() when the launch is verified.
+  logo                String?
+  domain              String
+  status              LaunchStatus @default(PENDING)
+  error               String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model ProjectLog {
+  id        String    @id @default(cuid())
+  projectId String
+  source    LogSource
+  level     LogLevel  @default(INFO)
+  message   String
+  createdAt DateTime  @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+}
+
+/// A token launch paid for by the platform's sponsor wallet, unlocked by holding an Aestrodom Pass.
+/// One row per pass per UTC day: the unique key is the daily quota and also blocks double spends.
+model SponsoredLaunch {
+  id              String   @id @default(cuid())
+  passTokenId     Int
+  day             String // YYYY-MM-DD (UTC)
+  wallet          String // pass holder; also the token's creator fee recipient
+  userId          String
+  projectId       String
+  transactionHash String?  @unique
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([passTokenId, day])
+  @@index([day])
+  @@index([userId])
+}

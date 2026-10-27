@@ -1,0 +1,12 @@
+{
+  "name": "Aestrodom Pass",
+  "description": "One of 500 Aestrodom Passes on Robinhood Chain. Holding a pass gives one free token launch per day on aestrodom.org: Aestrodom pays the Pons launch fee and gas, and creator fees go to the holder's wallet.",
+  "image": "https://aestrodom.org/nft/aestrodom-pass.png",
+  "external_link": "https://aestrodom.org/pass",
+  "external_url": "https://aestrodom.org/pass",
+  "attributes": [
+    { "trait_type": "Collection", "value": "Aestrodom Pass" },
+    { "trait_type": "Perk", "value": "1 free token launch per day" },
+    { "trait_type": "Supply", "value": "500" }
+  ]
+}
